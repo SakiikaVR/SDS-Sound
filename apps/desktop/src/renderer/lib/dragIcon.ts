@@ -22,6 +22,9 @@ export async function waveformIconDataUrl(
     const ctx = canvas.getContext('2d')
     if (!ctx) return undefined
     ctx.drawImage(img, 0, 0, ICON_W, ICON_H)
+    ctx.globalCompositeOperation = 'source-in'
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--sd-wave-played').trim() || '#159fc9'
+    ctx.fillRect(0, 0, ICON_W, ICON_H)
     return canvas.toDataURL('image/png')
   } catch {
     return undefined

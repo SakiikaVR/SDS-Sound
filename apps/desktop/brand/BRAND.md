@@ -1,5 +1,7 @@
 # Super Duper Software - brand definition
 
+> SDS-Sound adapts the app palette to cyan in `brand.css`. The orange palette described below records the upstream design and is not used by the SDS-Sound interface.
+
 `brand.css` + `fonts.css` + `fonts/` are the **single source of truth** for the
 Super Duper brand. Copy the whole `brand/` directory into any product. Nothing
 in here depends on a framework, a build step, or a Tailwind version.

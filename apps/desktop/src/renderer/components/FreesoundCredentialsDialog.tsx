@@ -37,6 +37,9 @@ export function FreesoundCredentialsDialog({
               <dt>URL</dt><dd className="break-all">https://github.com/SakiikaVR/SDS-Sound</dd>
               <dt>Callback URL</dt><dd className="break-all">http://localhost:8910/callback</dd>
             </dl>
+            <p className="mt-2 text-xs text-ink-muted">{t('Description is required. Describe your own API use. Example:', 'Descriptionは必須です。APIの利用目的を自分の使い方に合わせて書いてください。入力例：')}</p>
+            <p lang="en" className="mt-1 rounded border border-line p-2 text-xs text-ink-muted">I use SDS-Sound to search, preview and download Freesound sounds for my personal sample library. I will follow each sound&apos;s license and attribution requirements.</p>
+            <p className="mt-1 text-xs text-ink-muted">{t('Never enter your Client Secret or password in Description.', 'DescriptionにClient Secretやパスワードは入力しません。')}</p>
           </section>
           <section>
             <h3 className="font-semibold">{t('2. Copy the issued values into this app', '2. 発行された値をこのアプリに入力')}</h3>

@@ -24,6 +24,9 @@
 | Name | `SDS-Sound` |
 | URL | `https://github.com/SakiikaVR/SDS-Sound` |
 | Callback URL | `http://localhost:8910/callback` |
+| Description（必須） | `I use SDS-Sound to search, preview and download Freesound sounds for my personal sample library. I will follow each sound's license and attribution requirements.` |
+
+「Description」はAPIを何に使うかを書く必須欄です。上の英文は入力例なので、自分の使い方に合わせて書き換えてください。Client Secretやパスワードは書きません。
 
 ![初回起動時のFreesound接続設定。登録リンク、登録する値、Client IDとClient Secretの入力欄が表示される](docs/screenshots/dark.png)
 
@@ -46,7 +49,7 @@ Freesoundが発行した **Client ID** を画面上の「Client ID」欄、**Cli
 | Freesound検索 | キーワード、タグ、ライセンス、長さなどで検索。ログインボタンからシステムブラウザーで認証します。 |
 | BPM・キー | Freesoundの自動解析値で検索・絞り込み。値のない音源もあります。 |
 | 類似音 | 選んだ音源を基に似た音を検索。 |
-| 試聴・波形 | アプリ内で試聴。ライトモードの波形は水色です。 |
+| 試聴・波形 | アプリ内で試聴。ダーク・ライト両モードの波形と文字選択は水色系です。 |
 | ライブラリ | ダウンロードした音とローカル音声を管理。WAV、AIFF、FLAC、MP3、OGG、M4Aの取り込みに対応。 |
 | コレクション | 音を整理して再利用。音声の編集、書き出し、DAWへのドラッグにも対応。 |
 | 日本語 | アプリ画面とWindowsメニューを日本語化。設定から英語に切り替え可能。 |
@@ -54,7 +57,7 @@ Freesoundが発行した **Client ID** を画面上の「Client ID」欄、**Cli
 
 ## 動作環境と導入
 
-Windows 10/11 x64。リリースページの `SDS-Sound-Setup-0.1.0.exe` をダウンロードして実行します。現時点でコード署名はありません。詳細は[INSTALL.md](INSTALL.md)を参照してください。macOS向けソースコードも含みますが、このリリースで配布・検証するのはWindows版です。
+Windows 10/11 x64。リリースページの `SDS-Sound-Setup-0.1.1.exe` をダウンロードして実行します。現時点でコード署名はありません。詳細は[INSTALL.md](INSTALL.md)を参照してください。macOS向けソースコードも含みますが、このリリースで配布・検証するのはWindows版です。
 
 Freesound検索には各利用者のFreesoundアカウントとAPIアプリ登録が必要です。接続設定はアプリ内で行い、Cloudflareなどの外部サーバーは不要です。ローカルライブラリはログインなしで使えます。詳しくは[接続設定](SETUP.md)を参照してください。
 

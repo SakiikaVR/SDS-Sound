@@ -11,8 +11,9 @@ SDS-Soundの公開インストーラーにはClient IDもClient Secretも入っ�
 | Name | `SDS-Sound` |
 | URL | `https://github.com/SakiikaVR/SDS-Sound` |
 | Callback URL | `http://localhost:8910/callback` |
+| Description（必須） | `I use SDS-Sound to search, preview and download Freesound sounds for my personal sample library. I will follow each sound's license and attribution requirements.` |
 
-登録後、発行されたClient IDとClient Secretを控えます。Freesoundのログインパスワードとは別の値です。
+DescriptionにはAPIの利用目的を自分の言葉で書きます。表の英文は例です。Client Secretやパスワードは書かないでください。登録後、発行されたClient IDとClient Secretを控えます。Freesoundのログインパスワードとは別の値です。
 
 ## 2. SDS-Soundに入力
 

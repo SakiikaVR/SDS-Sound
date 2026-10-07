@@ -1,8 +1,7 @@
 /* ============================================================================
-   Renderer stylesheet. The BRAND lives in ../../brand - the single source of
-   truth, copied verbatim from Super Duper Software. This file only adapts it to
-   Tailwind v3 and adds app-level base rules. Never define a brand value here;
-   add or retune tokens in ../../brand/brand.css so the port stays clean.
+   Renderer stylesheet. Theme tokens live in ../../brand/brand.css, adapted from
+   the Super Duper Software brand for SDS-Sound's cyan palette. This file only
+   adapts them to Tailwind v3 and adds app-level base rules.
    ========================================================================= */
 
 @import '../../brand/fonts.css';

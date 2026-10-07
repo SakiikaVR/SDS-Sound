@@ -23,10 +23,23 @@ jobs:
       - run: pnpm --filter @superduper/desktop typecheck
       - run: pnpm --filter @superduper/desktop test
       - run: pnpm --filter @superduper/desktop pack:win
+      - name: FFmpeg source
+        shell: pwsh
+        run: |
+          $archive = 'apps/desktop/dist/FFmpeg-e38092ef93-source.tar.gz'
+          Invoke-WebRequest 'https://github.com/FFmpeg/FFmpeg/archive/e38092ef93.tar.gz' -OutFile $archive
+          $actual = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne '7578feb5284b22e6172c6f4020ddc43d746eb3ca44363756d1b47a96fd2d68f5') {
+            throw "FFmpeg source archive hash mismatch: $actual"
+          }
       - name: Checksums
         shell: pwsh
         run: |
-          $lines = Get-ChildItem apps/desktop/dist -Filter 'SDS-Sound-Setup-*.exe' | ForEach-Object {
+          $files = @(
+            Get-ChildItem apps/desktop/dist -Filter 'SDS-Sound-Setup-*.exe'
+            Get-Item apps/desktop/dist/FFmpeg-e38092ef93-source.tar.gz
+          )
+          $lines = $files | ForEach-Object {
             $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
             "$hash  $($_.Name)"
           }
@@ -40,7 +53,8 @@ jobs:
           body: |
             Windows 10/11 x64 installer for SDS-Sound. The installer is unsigned.
             See README.md and INSTALL.md for features, setup, and limitations.
-            The application source is MIT licensed; bundled FFmpeg and fonts retain their own licenses.
+            The application source is MIT licensed. Bundled FFmpeg is GPLv3; its source is attached below. Fonts retain their own licenses.
           files: |
             apps/desktop/dist/SDS-Sound-Setup-*.exe
             apps/desktop/dist/SHA256SUMS.txt
+            apps/desktop/dist/FFmpeg-e38092ef93-source.tar.gz

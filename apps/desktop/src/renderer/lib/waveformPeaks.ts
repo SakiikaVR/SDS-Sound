@@ -73,9 +73,9 @@ export interface DrawOptions {
 
 /**
  * Draw the envelope to a 2D context. Sizes the backing store to
- * `width*dpr x height*dpr` so the waveform is crisp on HiDPI and at any CSS
- * width. Safe to call every animation of a resize/zoom — it is a full repaint of
- * a few hundred rects.
+ * At least 2x the CSS size keeps the envelope edges smooth on standard-density
+ * displays. The outline follows the min/max peaks instead of rounding every
+ * column to a rectangular pixel block.
  */
 export function drawPeakWaveform(
   canvas: HTMLCanvasElement,
@@ -83,14 +83,18 @@ export function drawPeakWaveform(
   opts: DrawOptions,
 ): void {
   const { width, height, dpr, color } = opts
-  const w = Math.max(1, Math.round(width * dpr))
-  const h = Math.max(1, Math.round(height * dpr))
+  if (width <= 0 || height <= 0) return
+  const scale = Math.max(2, dpr)
+  const w = Math.max(1, Math.round(width * scale))
+  const h = Math.max(1, Math.round(height * scale))
   if (canvas.width !== w) canvas.width = w
   if (canvas.height !== h) canvas.height = h
 
   const ctx = canvas.getContext('2d')
   if (!ctx) return
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
   ctx.clearRect(0, 0, w, h)
+  ctx.setTransform(w / width, 0, 0, h / height, 0, 0)
 
   const columns = Math.max(1, Math.round(width))
   const cols = resamplePeaks(
@@ -99,23 +103,29 @@ export function drawPeakWaveform(
     opts.windowStart ?? 0,
     opts.windowEnd ?? 1,
   )
-  const colW = w / columns
-  const mid = h / 2
+  const colW = width / columns
+  const mid = height / 2
 
   if (opts.midColor) {
     ctx.fillStyle = opts.midColor
-    ctx.fillRect(0, Math.floor(mid), w, 1)
+    ctx.fillRect(0, mid, width, 0.5)
   }
 
+  if (cols.length === 0) return
   ctx.fillStyle = color
+  ctx.beginPath()
+  ctx.moveTo(0, mid - cols[0]!.max * mid)
   for (let i = 0; i < cols.length; i++) {
-    const { min, max } = cols[i]!
-    const yTop = mid - max * mid
-    const yBot = mid - min * mid
-    const x = Math.floor(i * colW)
-    const barW = Math.max(1, Math.ceil(colW))
-    ctx.fillRect(x, Math.floor(yTop), barW, Math.max(1, Math.ceil(yBot - yTop)))
+    ctx.lineTo((i + 0.5) * colW, mid - cols[i]!.max * mid)
   }
+  ctx.lineTo(width, mid - cols[cols.length - 1]!.max * mid)
+  ctx.lineTo(width, mid - cols[cols.length - 1]!.min * mid)
+  for (let i = cols.length - 1; i >= 0; i--) {
+    ctx.lineTo((i + 0.5) * colW, mid - cols[i]!.min * mid)
+  }
+  ctx.lineTo(0, mid - cols[0]!.min * mid)
+  ctx.closePath()
+  ctx.fill()
 }
 
 /**

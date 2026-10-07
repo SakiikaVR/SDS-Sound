@@ -41,7 +41,7 @@ export function TransportBar() {
           <Waveform
             key={currentSound.id}
             soundId={currentSound.id}
-            url={currentSound.waveformUrls.m}
+            url={currentSound.waveformUrls.l || currentSound.waveformUrls.m}
             active
             className={`${isRail ? 'h-12' : 'h-16'} w-full rounded bg-bg-inset`}
           />

@@ -107,12 +107,12 @@ export function EditWaveform({
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 w-0.5 bg-[var(--sd-accent-2,#ff9d4d)]"
+            className="pointer-events-none absolute inset-y-0 w-0.5 bg-accent-2"
             style={{ left: `${toBoxPct(region.start)}%` }}
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 w-0.5 bg-[var(--sd-accent-2,#ff9d4d)]"
+            className="pointer-events-none absolute inset-y-0 w-0.5 bg-accent-2"
             style={{ left: `${toBoxPct(region.end)}%` }}
           />
         </>
