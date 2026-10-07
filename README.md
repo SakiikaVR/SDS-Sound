@@ -11,6 +11,10 @@
 
 [導入方法](INSTALL.md) · [接続設定](SETUP.md) · [ライセンス](THIRD_PARTY_NOTICES.md)
 
+## スクリーンショット
+
+![SDS-Soundのダークモード。Freesoundの検索結果、水色の小さな波形、再生時間とシークバー](docs/screenshots/app-dark.png)
+
 ## ログイン方法
 
 ### 1. FreesoundのAPIアプリを登録
