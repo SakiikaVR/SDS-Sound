@@ -78,7 +78,7 @@ pnpm --filter @superduper/desktop pack:win
 
 ## ライセンスと出典
 
-アプリのソースコードは[MIT](LICENSE)です。元のSuper Duper Softwareの著作権表示を保持しています。Splicerrのコードは含めていません。フォント、Electron、同梱するFFmpegなどの第三者コンポーネントは個別のライセンスに従います。[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)を参照してください。Freesoundの各音声には個別のCreative Commonsライセンスがあり、ダウンロードした音源の利用条件を確認してください。
+アプリのソースコードは[MIT](LICENSE)です。元のSuper Duper Softwareの著作権表示を保持しています。フォント、Electron、同梱するFFmpegなどの第三者コンポーネントは個別のライセンスに従います。[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)を参照してください。Freesoundの各音声には個別のCreative Commonsライセンスがあり、ダウンロードした音源の利用条件を確認してください。
 
 ## 現在の制限
 
