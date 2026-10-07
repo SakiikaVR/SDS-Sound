@@ -45,6 +45,7 @@ export function useSearch(
   filter: SearchFilter = {},
   /** Wait until the persisted sort/filter prefs have loaded. */
   ready = true,
+  similarTo?: number,
 ): UseSearch {
   const [status, setStatus] = useState<SearchStatus>('idle')
   const [error, setError] = useState<SearchError | null>(null)
@@ -56,20 +57,23 @@ export function useSearch(
   const [loadingMore, setLoadingMore] = useState(false)
 
   const activeQuery = useRef('')
+  const activeRequest = useRef('')
   const pageRef = useRef(1)
   const inFlightPage = useRef<number | null>(null)
 
-  const optsRef = useRef<{ sort: SearchSort; filter: SearchFilter }>({ sort, filter })
-  optsRef.current = { sort, filter }
+  const optsRef = useRef<{ sort: SearchSort; filter: SearchFilter; similarTo?: number }>({ sort, filter, similarTo })
+  optsRef.current = { sort, filter, similarTo }
 
   const filterKey = JSON.stringify(filter)
 
   useEffect(() => {
     if (!ready) return
     const q = query.trim()
+    const requestKey = `${q}\u0000${similarTo ?? ''}`
     activeQuery.current = q
+    activeRequest.current = requestKey
 
-    if (q === '') {
+    if (q === '' && !similarTo) {
       setStatus('idle')
       setError(null)
       setSounds([])
@@ -86,9 +90,9 @@ export function useSearch(
     inFlightPage.current = 1
 
     window.core
-      .searchDebounced(q, { page: 1, sort, filter })
+      .searchDebounced(q, { page: 1, sort, filter, similarTo })
       .then((r) => {
-        if (activeQuery.current !== q) return
+        if (activeRequest.current !== requestKey) return
         setSounds(r.sounds)
         setTotalCount(r.totalCount)
         setHasMore(r.hasMore)
@@ -96,7 +100,7 @@ export function useSearch(
         setStatus('ok')
       })
       .catch((e: unknown) => {
-        if (activeQuery.current !== q) return
+        if (activeRequest.current !== requestKey) return
         setError(classifyError(e))
         setSounds([])
         setTotalCount(0)
@@ -107,11 +111,12 @@ export function useSearch(
         if (inFlightPage.current === 1) inFlightPage.current = null
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, sort, filterKey, ready])
+  }, [query, sort, filterKey, ready, similarTo])
 
   const loadMore = useCallback(() => {
     const q = activeQuery.current
-    if (q === '' || !hasMore || loadingMore || inFlightPage.current !== null) return
+    const requestKey = activeRequest.current
+    if ((q === '' && !optsRef.current.similarTo) || !hasMore || loadingMore || inFlightPage.current !== null) return
 
     const next = pageRef.current + 1
     inFlightPage.current = next
@@ -122,9 +127,10 @@ export function useSearch(
         page: next,
         sort: optsRef.current.sort,
         filter: optsRef.current.filter,
+        similarTo: optsRef.current.similarTo,
       })
       .then((r) => {
-        if (activeQuery.current !== q) return
+        if (activeRequest.current !== requestKey) return
         setSounds((prev) => {
           const seen = new Set(prev.map((s) => s.id))
           return [...prev, ...r.sounds.filter((s) => !seen.has(s.id))]
@@ -134,7 +140,7 @@ export function useSearch(
         pageRef.current = next
       })
       .catch(() => {
-        if (activeQuery.current !== q) return
+        if (activeRequest.current !== requestKey) return
         setHasMore(false)
       })
       .finally(() => {

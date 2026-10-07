@@ -3,6 +3,7 @@ import type { ChangeEvent, KeyboardEvent } from 'react'
 import type { LibraryFilter } from '../../preload'
 import { useLibraryFilter, hasLibraryFilter } from '../store/useLibraryFilter'
 import { FILE_TYPES, LICENSE_OPTIONS } from '../lib/filterLabels'
+import { t } from '../lib/locale'
 import { FilterPopover } from './FilterPopover'
 import {
   DurationRange,
@@ -19,6 +20,8 @@ function filterCount(f: LibraryFilter): number {
   let n = 0
   if ((f.tags?.length ?? 0) > 0) n += f.tags!.length
   if (f.durationMin != null || f.durationMax != null) n += 1
+  if (f.bpmMin != null || f.bpmMax != null) n += 1
+  if (f.tonalityKey) n += 1
   if (f.fileType) n += 1
   if (f.license) n += 1
   return n
@@ -35,16 +38,16 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
   const [tagDraft, setTagDraft] = useState('')
 
   const onNum =
-    (key: 'durationMin' | 'durationMax') =>
+    (key: 'durationMin' | 'durationMax' | 'bpmMin' | 'bpmMax') =>
     (e: ChangeEvent<HTMLInputElement>) =>
       setFilter({
         [key]: numOrUndef(e.target.value),
       } as Partial<LibraryFilter>)
 
   const commitTag = () => {
-    const t = tagDraft.trim()
-    if (!t) return
-    addTag(t)
+    const tag = tagDraft.trim()
+    if (!tag) return
+    addTag(tag)
     setTagDraft('')
   }
 
@@ -62,11 +65,11 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
     <div className="mt-2 flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-ink-muted">
         <label className="flex items-center gap-1.5">
-          <span>Find</span>
+          <span>{t('Find', '絞り込み')}</span>
           <input
             type="search"
-            placeholder="name, author, tag…"
-            aria-label="Filter the Library by text"
+            placeholder={t('name, author, tag…', '名前、作者、タグ…')}
+            aria-label={t('Filter the Library by text', 'ライブラリを文字で絞り込み')}
             className={`${FILTER_CONTROL_CLASS} w-56`}
             value={filter.text ?? ''}
             onChange={(e) => setFilter({ text: e.target.value || undefined })}
@@ -74,11 +77,11 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
         </label>
 
         <FilterPopover count={filterCount(filter)} onClearAll={clearFilter}>
-          <Field label="Add tag" wide>
+          <Field label={t('Add tag', 'タグを追加')} wide>
             <input
               type="text"
-              placeholder="type a tag, press Enter"
-              aria-label="Add a tag to the Library filter"
+              placeholder={t('type a tag, press Enter', 'タグを入力してEnter')}
+              aria-label={t('Add a tag to the Library filter', 'ライブラリのタグフィルターを追加')}
               className={FILTER_CONTROL_CLASS}
               value={tagDraft}
               onChange={(e) => setTagDraft(e.target.value)}
@@ -87,7 +90,7 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
             />
           </Field>
 
-          <Field label="Duration" wide>
+          <Field label={t('Duration', '長さ')} wide>
             <DurationRange
               min={filter.durationMin}
               max={filter.durationMax}
@@ -96,13 +99,39 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
             />
           </Field>
 
-          <Field label="File type">
+          <Field label="BPM" wide>
+            <div className="flex items-center gap-1.5">
+              <input type="number" min="1" max="400" aria-label={t('Minimum BPM', '最小BPM')}
+                className={FILTER_CONTROL_CLASS} value={filter.bpmMin ?? ''} onChange={onNum('bpmMin')} />
+              <span>–</span>
+              <input type="number" min="1" max="400" aria-label={t('Maximum BPM', '最大BPM')}
+                className={FILTER_CONTROL_CLASS} value={filter.bpmMax ?? ''} onChange={onNum('bpmMax')} />
+            </div>
+          </Field>
+
+          <Field label={t('Key', 'キー')} wide>
+            <div className="flex gap-1">
+              <StyledSelect aria-label={t('Key', 'キー')} value={filter.tonalityKey ?? ''}
+                onChange={(e) => setFilter({ tonalityKey: e.target.value || undefined })}>
+                <option value="">{t('Any key', 'すべてのキー')}</option>
+                {['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((key) =>
+                  <option key={key} value={key}>{key}</option>)}
+              </StyledSelect>
+              <StyledSelect aria-label={t('Mode', '調性')} value={filter.tonalityMode ?? 'major'}
+                onChange={(e) => setFilter({ tonalityMode: e.target.value as 'major' | 'minor' })}>
+                <option value="major">{t('Major', 'メジャー')}</option>
+                <option value="minor">{t('Minor', 'マイナー')}</option>
+              </StyledSelect>
+            </div>
+          </Field>
+
+          <Field label={t('File type', 'ファイル形式')}>
             <StyledSelect
-              aria-label="File type"
+              aria-label={t('File type', 'ファイル形式')}
               value={filter.fileType ?? ''}
               onChange={(e) => setFilter({ fileType: e.target.value || undefined })}
             >
-              <option value="">Any</option>
+              <option value="">{t('Any', 'すべて')}</option>
               {FILE_TYPES.map((t) => (
                 <option key={t} value={t}>
                   {t.toUpperCase()}
@@ -111,9 +140,9 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
             </StyledSelect>
           </Field>
 
-          <Field label="License">
+          <Field label={t('License', 'ライセンス')}>
             <StyledSelect
-              aria-label="License"
+              aria-label={t('License', 'ライセンス')}
               value={filter.license ?? ''}
               onChange={(e) =>
                 setFilter({
@@ -122,7 +151,7 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
                 })
               }
             >
-              <option value="">Any</option>
+              <option value="">{t('Any', 'すべて')}</option>
               {LICENSE_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
@@ -136,17 +165,17 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
       {active && (
         <div
           className="flex flex-wrap items-center gap-1.5"
-          aria-label="Active Library filters"
+          aria-label={t('Active Library filters', '適用中のライブラリフィルター')}
         >
-          {tags.map((t) => (
+          {tags.map((tag) => (
             <button
-              key={`tag:${t}`}
+              key={`tag:${tag}`}
               type="button"
-              onClick={() => removeTag(t)}
+              onClick={() => removeTag(tag)}
               className="inline-flex items-center gap-1 rounded border border-accent-2 px-1.5 py-0.5 text-[11px] text-accent-2-text hover:bg-surface-raised"
-              title="Remove this tag filter"
+              title={t('Remove this tag filter', 'このタグフィルターを解除')}
             >
-              <span># {t}</span>
+              <span># {tag}</span>
               <span aria-hidden>×</span>
             </button>
           ))}
@@ -158,7 +187,7 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
           )}
           {(filter.durationMin != null || filter.durationMax != null) && (
             <FilterPill
-              label={`Duration ${filter.durationMin ?? 0}s–${
+              label={`${t('Duration', '長さ')} ${filter.durationMin ?? 0}s–${
                 filter.durationMax != null ? `${filter.durationMax}s` : '∞'
               }`}
               onRemove={() => {
@@ -166,6 +195,14 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
                 removeFilter('durationMax')
               }}
             />
+          )}
+          {(filter.bpmMin != null || filter.bpmMax != null) && (
+            <FilterPill label={`BPM ${filter.bpmMin ?? '…'}–${filter.bpmMax ?? '…'}`}
+              onRemove={() => { removeFilter('bpmMin'); removeFilter('bpmMax') }} />
+          )}
+          {filter.tonalityKey && (
+            <FilterPill label={`${filter.tonalityKey} ${filter.tonalityMode === 'minor' ? t('minor', 'マイナー') : t('major', 'メジャー')}`}
+              onRemove={() => { removeFilter('tonalityKey'); removeFilter('tonalityMode') }} />
           )}
           {filter.fileType && (
             <FilterPill
@@ -187,7 +224,7 @@ export const LibraryFilterBar = memo(function LibraryFilterBar() {
             onClick={clearFilter}
             className="rounded border border-line px-1.5 py-0.5 text-[11px] text-ink-muted hover:border-line-strong hover:text-ink"
           >
-            Clear all
+            {t('Clear all', 'すべて解除')}
           </button>
         </div>
       )}
@@ -207,7 +244,7 @@ function FilterPill({
       type="button"
       onClick={onRemove}
       className="inline-flex items-center gap-1 rounded border border-accent-2 px-1.5 py-0.5 text-[11px] text-accent-2-text hover:bg-surface-raised"
-      title="Remove this filter"
+      title={t('Remove this filter', 'このフィルターを解除')}
     >
       <span>{label}</span>
       <span aria-hidden>×</span>

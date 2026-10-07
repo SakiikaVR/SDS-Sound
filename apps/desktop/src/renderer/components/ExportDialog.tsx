@@ -7,6 +7,7 @@ import type { ExportDialogState } from '../lib/editSpecBuilder'
 import type { Region } from '../lib/regionGeometry'
 import { useLibrary } from '../store/useLibrary'
 import { ExportForm, FORMATS } from './export/ExportForm'
+import { t } from '../lib/locale'
 
 type Status =
   | { kind: 'form' }
@@ -139,14 +140,14 @@ export function ExportDialog({
         className="flex w-full max-w-md flex-col rounded-lg border border-line bg-surface shadow-xl"
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label="Export as Edit"
+        aria-label={t('Export as Edit', '編集した音声を書き出す')}
       >
         <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-3">
-          <h2 className="text-sm font-semibold text-ink">Export as Edit</h2>
+          <h2 className="text-sm font-semibold text-ink">{t('Export as Edit', '編集した音声を書き出す')}</h2>
           <button
             type="button"
             onClick={handleClose}
-            aria-label="Close export dialog"
+            aria-label={t('Close export dialog', '書き出し画面を閉じる')}
             className="rounded border border-line px-2 py-1 text-xs text-ink-muted hover:border-line-strong hover:text-ink"
           >
             ✕
@@ -155,7 +156,7 @@ export function ExportDialog({
 
         {status.kind === 'error' && (
           <div className="mx-4 mt-3 rounded border border-error p-2 text-xs text-error">
-            Export failed: {status.message}
+            {t('Export failed:', '書き出しに失敗しました:')} {status.message}
           </div>
         )}
 
@@ -196,7 +197,7 @@ function RenderingProgress({
   return (
     <div className="flex flex-col gap-3 p-4">
       <p className="text-sm text-ink-muted" aria-live="polite">
-        Rendering… {percent}%
+        {t('Rendering…', '書き出し中…')} {percent}%
       </p>
       <div className="h-2 overflow-hidden rounded-full bg-bg-inset">
         <div
@@ -209,7 +210,7 @@ function RenderingProgress({
         onClick={onCancel}
         className="self-start rounded border border-line px-2 py-1 text-xs text-ink-muted hover:border-line-strong hover:text-ink"
       >
-        Cancel
+        {t('Cancel', 'キャンセル')}
       </button>
     </div>
   )

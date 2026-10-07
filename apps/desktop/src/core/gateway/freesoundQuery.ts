@@ -63,6 +63,15 @@ export function freesoundFilterString(
     const hi = durationMax != null ? String(durationMax) : '*'
     terms.push(`duration:[${lo} TO ${hi}]`)
   }
+  if (filter.bpmMin != null || filter.bpmMax != null) {
+    const lo = filter.bpmMin != null ? String(filter.bpmMin) : '*'
+    const hi = filter.bpmMax != null ? String(filter.bpmMax) : '*'
+    terms.push(`bpm:[${lo} TO ${hi}]`)
+  }
+  if (filter.tonalityKey && /^(?:[A-G]#?)$/.test(filter.tonalityKey)) {
+    const mode = filter.tonalityMode === 'minor' ? 'minor' : 'major'
+    terms.push(`tonality:"${filter.tonalityKey} ${mode}"`)
+  }
   if (filter.sampleRate != null) terms.push(`samplerate:${filter.sampleRate}`)
   if (filter.bitDepth != null) terms.push(`bitdepth:${filter.bitDepth}`)
   if (filter.channels != null) terms.push(`channels:${filter.channels}`)

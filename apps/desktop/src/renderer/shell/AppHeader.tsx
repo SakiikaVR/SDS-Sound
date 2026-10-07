@@ -4,7 +4,10 @@ import { DownloadQuota } from '../components/DownloadQuota'
 import { OverflowMenu } from '../components/OverflowMenu'
 import type { OverflowMenuItem } from '../components/OverflowMenu'
 import { useViewport } from '../lib/viewport'
+import { getLocale, setLocale, t } from '../lib/locale'
+import { setTheme, useTheme } from '../lib/theme'
 import type { View } from './useShellState'
+const iconUrl = new URL('../../../resources/icon.svg', import.meta.url).href
 
 const TABS: ReadonlyArray<[View, string]> = [
   ['search', 'Search'],
@@ -28,7 +31,7 @@ export interface AppHeaderProps {
 function Logo() {
   return (
     <img
-      src="brand/logo.svg"
+      src={iconUrl}
       alt=""
       aria-hidden
       className="h-5 w-auto shrink-0"
@@ -50,22 +53,21 @@ export function AppHeader({
   contextBar,
 }: AppHeaderProps) {
   const { isRail } = useViewport()
+  const theme = useTheme()
 
   const menuItems: OverflowMenuItem[] = [
-    ...(authed ? [{ label: 'Sign out', onSelect: onSignOut }] : []),
-    { label: 'Keyboard shortcuts', onSelect: onOpenShortcuts },
-    { label: 'View logs', onSelect: onOpenLogs },
-    {
-      label: 'Contact support',
-      onSelect: () => void window.core.openSupportEmail(),
-    },
+    ...(authed ? [{ label: t('Sign out', 'ログアウト'), onSelect: onSignOut }] : []),
+    { label: t('Keyboard shortcuts', 'キーボードショートカット'), onSelect: onOpenShortcuts },
+    { label: t('View logs', 'ログを表示'), onSelect: onOpenLogs },
+    { label: theme === 'dark' ? t('Light mode', 'ライトモード') : t('Dark mode', 'ダークモード'), onSelect: () => setTheme(theme === 'dark' ? 'light' : 'dark') },
+    { label: getLocale() === 'ja' ? 'Language: English' : '言語: 日本語', onSelect: () => setLocale(getLocale() === 'ja' ? 'en' : 'ja') },
   ]
 
   const menu = (
     <OverflowMenu
       items={menuItems}
-      label="More"
-      title="More"
+      label={t('More', 'その他')}
+      title={t('More', 'その他')}
       className="inline-flex shrink-0 items-center justify-center rounded border border-line px-1.5 py-0.5 text-[13px] leading-none text-ink-muted hover:border-line-strong hover:text-ink"
     />
   )
@@ -102,7 +104,7 @@ export function AppHeader({
             </div>
           </div>
           <div className="mb-3 grid grid-cols-3 gap-1 rounded border border-line p-0.5">
-            {TABS.map(([v, label]) => tab(v, label, true))}
+            {TABS.map(([v, label]) => tab(v, t(label, ({search:'検索', library:'ライブラリ', collections:'コレクション'} as Record<View, string>)[v]), true))}
           </div>
           {contextBar}
         </>
@@ -112,7 +114,7 @@ export function AppHeader({
             <div className="flex shrink-0 items-center gap-x-3">
               <Logo />
               <div className="flex items-center gap-1">
-                {TABS.map(([v, label]) => tab(v, label, false))}
+                {TABS.map(([v, label]) => tab(v, t(label, ({search:'検索', library:'ライブラリ', collections:'コレクション'} as Record<View, string>)[v]), false))}
               </div>
             </div>
             <div className="flex min-w-0 flex-1 items-center justify-end gap-x-3">

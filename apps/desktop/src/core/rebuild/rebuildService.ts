@@ -213,6 +213,9 @@ export function createRebuildService(deps: RebuildServiceDeps): RebuildService {
 
         if (hasLibraryEntry(db, item.soundId)) alreadyPresent += 1
         upsertSound(db, item.sidecar.sound)
+        if (item.soundId < 0) {
+          db.prepare('UPDATE sounds SET local_path = ? WHERE id = ?').run(item.audioPath, item.soundId)
+        }
         saveLibraryEntry(
           db,
           item.soundId,

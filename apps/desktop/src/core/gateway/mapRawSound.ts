@@ -36,6 +36,8 @@ export function mapRawSound(raw: RawFreesoundSound): Sound {
     samplerate: raw.samplerate,
     channels: raw.channels,
     bitdepth: raw.bitdepth,
+    ...(typeof raw.bpm === 'number' && Number.isFinite(raw.bpm) ? { bpm: raw.bpm } : {}),
+    ...(raw.tonality ? { tonality: raw.tonality } : {}),
     previewUrls: {
       hqMp3: raw.previews['preview-hq-mp3'],
       lqMp3: raw.previews['preview-lq-mp3'],

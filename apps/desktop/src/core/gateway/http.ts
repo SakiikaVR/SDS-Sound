@@ -91,8 +91,9 @@ export class HttpFreesoundGateway implements FreesoundGateway {
     params: GatewaySearchParams,
     accessToken: string,
   ): Promise<RawSearchPage> {
-    const url = new URL('search/text/', this.#baseUrl)
+    const url = new URL('search/', this.#baseUrl)
     url.searchParams.set('query', params.query)
+    if (params.similarTo != null) url.searchParams.set('similar_to', String(params.similarTo))
     url.searchParams.set('page', String(params.page))
     url.searchParams.set('page_size', String(params.pageSize))
     url.searchParams.set('fields', SEARCH_FIELDS)

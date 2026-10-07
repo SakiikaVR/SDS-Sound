@@ -18,10 +18,10 @@ export function pruneLibraryFilter(filter: LibraryFilter): LibraryFilter {
   const out: LibraryFilter = { ...filter }
   if (out.tags && out.tags.length === 0) delete out.tags
   if (out.text != null && out.text.trim() === '') delete out.text
-  for (const k of ['license', 'fileType'] as const) {
+  for (const k of ['license', 'fileType', 'tonalityKey', 'tonalityMode'] as const) {
     if (out[k] === undefined || out[k] === null || out[k] === '') delete out[k]
   }
-  for (const k of ['durationMin', 'durationMax'] as const) {
+  for (const k of ['durationMin', 'durationMax', 'bpmMin', 'bpmMax'] as const) {
     if (out[k] === undefined || out[k] === null || Number.isNaN(out[k]))
       delete out[k]
   }
@@ -35,6 +35,9 @@ export function hasLibraryFilter(f: LibraryFilter): boolean {
     f.license != null ||
     f.durationMin != null ||
     f.durationMax != null ||
+    f.bpmMin != null ||
+    f.bpmMax != null ||
+    !!f.tonalityKey ||
     (f.fileType != null && f.fileType !== '') ||
     (f.text != null && f.text.trim() !== '')
   )

@@ -4,7 +4,7 @@ import type { DB } from './index'
 export const DOWNLOAD_QUOTA_WINDOW_MS = 24 * 60 * 60 * 1000
 
 /** Freesound's cap on Original downloads within {@link DOWNLOAD_QUOTA_WINDOW_MS}. */
-export const DOWNLOAD_QUOTA_LIMIT = 2000
+export const DOWNLOAD_QUOTA_LIMIT = 500
 
 /** Record that a Sound's Original was downloaded from Freesound at `now` (epoch ms). */
 export function recordDownload(db: DB, soundId: number, now: number): void {

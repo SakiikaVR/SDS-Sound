@@ -70,12 +70,8 @@ describe('normaliseUiState — a stored blob is advisory, never load-bearing', (
     expect(normaliseUiState(42)).toEqual({})
   })
 
-  it('keeps supportPromptDismissed only when it is exactly true', () => {
-    expect(normaliseUiState({ supportPromptDismissed: true })).toEqual({
-      supportPromptDismissed: true,
-    })
-    expect(normaliseUiState({ supportPromptDismissed: false })).toEqual({})
-    expect(normaliseUiState({ supportPromptDismissed: 'yes' })).toEqual({})
+  it('drops the retired support prompt setting', () => {
+    expect(normaliseUiState({ supportPromptDismissed: true })).toEqual({})
   })
 })
 
@@ -107,14 +103,6 @@ describe('mergeUiState — a patch touches only the keys it names', () => {
     })
   })
 
-  it('folds in supportPromptDismissed without disturbing the other keys', () => {
-    const base = normaliseUiState({ view: 'library', query: 'rain' })
-    expect(mergeUiState(base, { supportPromptDismissed: true })).toEqual({
-      view: 'library',
-      query: 'rain',
-      supportPromptDismissed: true,
-    })
-  })
 })
 
 describe('core.getUiState / setUiState', () => {
@@ -137,21 +125,6 @@ describe('core.getUiState / setUiState', () => {
       query: 'rain',
       window: { width: 1200, height: 800, x: 10, y: 10 },
     })
-  })
-})
-
-describe('core.getLaunchCount', () => {
-  it('is 1 on a fresh database and rises by one on each reopen', async () => {
-    const { core, dbPath, dataDir } = await makeTestCore()
-    expect(core.getLaunchCount()).toBe(1)
-    core.close()
-
-    const second = await makeTestCore({ dbPath, dataDir })
-    expect(second.core.getLaunchCount()).toBe(2)
-    second.core.close()
-
-    const third = await makeTestCore({ dbPath, dataDir })
-    expect(third.core.getLaunchCount()).toBe(3)
   })
 })
 

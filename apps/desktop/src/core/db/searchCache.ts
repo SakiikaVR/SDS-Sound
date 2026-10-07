@@ -5,6 +5,7 @@ import type { DB } from './index'
 /** Everything that affects a result page. Extend freely — see file header. */
 export interface SearchCacheParams {
   query: string
+  similarTo?: number
   page: number
   pageSize: number
   /** Result ordering; omitted by the core when it is `relevance`. */

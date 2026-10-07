@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 
 /** Freesound's Original-download cap per rolling 24 h. */
-export const DOWNLOAD_QUOTA_LIMIT = 2000
+export const DOWNLOAD_QUOTA_LIMIT = 500
 
 export interface DownloadQuotaState {
   /** Downloads made in the last 24 h, or `null` before the first fetch. */

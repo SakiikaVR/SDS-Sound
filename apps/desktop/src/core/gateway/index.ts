@@ -6,10 +6,11 @@ import type { SearchFilter, SearchSort } from '../types'
  * with `mapRawSound` and the `Sound` type.
  */
 export const SEARCH_FIELDS =
-  'id,name,username,license,duration,tags,filesize,type,samplerate,channels,bitdepth,previews,images,url,num_downloads,avg_rating,created'
+  'id,name,username,license,duration,tags,filesize,type,samplerate,channels,bitdepth,bpm,tonality,previews,images,url,num_downloads,avg_rating,created'
 
 export interface GatewaySearchParams {
   query: string
+  similarTo?: number
   /** 1-based page number. */
   page: number
   pageSize: number
@@ -33,6 +34,8 @@ export interface RawFreesoundSound {
   samplerate: number
   channels: number
   bitdepth: number
+  bpm?: number | null
+  tonality?: string | null
   num_downloads: number
   avg_rating: number
   created: string

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { SHORTCUT_GROUPS } from '../lib/shortcuts'
+import { t } from '../lib/locale'
 
 interface ShortcutsDialogProps {
   onClose: () => void
@@ -25,18 +26,18 @@ export function ShortcutsDialog({ onClose, onOpenLogs }: ShortcutsDialogProps) {
         className="flex max-h-full w-full max-w-lg flex-col rounded-lg border border-line bg-surface shadow-xl"
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label="Keyboard shortcuts"
+        aria-label={t('Keyboard shortcuts', 'キーボードショートカット')}
       >
         <div className="flex items-center justify-between gap-4 border-b border-line px-4 py-3">
           <h2 className="text-sm font-semibold text-ink">
-            Keyboard shortcuts
+            {t('Keyboard shortcuts', 'キーボードショートカット')}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="shrink-0 rounded border border-line px-2 py-1 text-xs text-ink-muted hover:border-line-strong hover:text-ink"
           >
-            Close
+            {t('Close', '閉じる')}
           </button>
         </div>
 
@@ -66,13 +67,13 @@ export function ShortcutsDialog({ onClose, onOpenLogs }: ShortcutsDialogProps) {
         </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3 text-[11px] text-ink-faint">
-          <span>Something broken? The app log has the details.</span>
+          <span>{t('Something broken? The app log has the details.', '問題が起きた場合はアプリのログを確認してください。')}</span>
           <button
             type="button"
             onClick={onOpenLogs}
             className="rounded border border-line px-2 py-1 text-xs text-ink-muted hover:border-line-strong hover:text-ink"
           >
-            View logs
+            {t('View logs', 'ログを表示')}
           </button>
         </div>
       </div>

@@ -1,82 +1,60 @@
-# Super Duper Samples
+<p align="center"><img src="apps/desktop/resources/icon.svg" width="120" alt="SDS-Sound ロゴ"></p>
 
-[Download the pre-built application here](https://superdupersoftware.net/samples).
+# SDS-Sound
 
-A desktop client for [Freesound](https://freesound.org) built for people scoring to
-picture or producing music: search the library, audition previews, download originals
-against your own Freesound account, keep a local library, and **drag sounds straight
-into your DAW**. It also generates a credits/attribution manifest for a set of sounds
-and does light trim-and-export edits.
+日本語で使える、Freesound対応の無料デスクトップサンプルブラウザー。Windows向けインストーラーを配布し、コードは公開しています。[Super Duper Core](https://github.com/Super-Duper-Software/super-duper-core)（MIT）を基に開発した非公式フォークです。
 
-![Super Duper Samples](docs/screenshot.png)
+<p>
+  <a href="https://github.com/SakiikaVR/SDS-Sound/releases/latest"><img src="https://img.shields.io/badge/Windows-ダウンロード-00A6B5?style=for-the-badge" alt="Windows版をダウンロード"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-111111?style=for-the-badge" alt="MITライセンス"></a>
+</p>
 
-## Status
+[導入方法](INSTALL.md) · [接続設定](SETUP.md) · [ライセンス](THIRD_PARTY_NOTICES.md)
 
-This is source you build and run yourself. There is **no bundled API key**: every
-Freesound call — search included — uses the signed-in user's OAuth2 token, which means you must
+## 画面
 
-1. register your own Freesound API application, and
-2. deploy your own token-exchange Cloudflare Worker (it holds the OAuth
-   `client_secret`; the app never does).
+以下は開発版を実際に起動して撮影したログイン前の画面です。検索結果や音声データの合成画像ではありません。
 
-Full instructions are in [SETUP.md](SETUP.md). Prebuilt installers exist
-([release workflow](.github/workflows/release.yml)) but are **unsigned** and will not
-sign in unless a Worker is deployed and its URL baked into the build — see
-[INSTALL.md](INSTALL.md).
+| ダークモード | ライトモード |
+| --- | --- |
+| ![SDS-Soundのダークモード](docs/screenshots/dark.png) | ![SDS-Soundのライトモード](docs/screenshots/light.png) |
 
-## Telemetry
+## 主な機能
 
-The app can send two anonymous telemetry payloads. `SDS_TELEMETRY` controls whether
-the app transmits them; Worker configuration independently controls whether received
-telemetry is recorded:
+| 機能 | 内容 |
+| --- | --- |
+| Freesound検索 | キーワード、タグ、ライセンス、長さなどで検索。ログインボタンからシステムブラウザーで認証します。 |
+| BPM・キー | Freesoundの自動解析値で検索・絞り込み。値のない音源もあります。 |
+| 類似音 | 選んだ音源を基に似た音を検索。 |
+| 試聴・波形 | アプリ内で試聴。ライトモードの波形は水色です。 |
+| ライブラリ | ダウンロードした音とローカル音声を管理。WAV、AIFF、FLAC、MP3、OGG、M4Aの取り込みに対応。 |
+| コレクション | 音を整理して再利用。音声の編集、書き出し、DAWへのドラッグにも対応。 |
+| 日本語 | アプリ画面とWindowsメニューを日本語化。設定から英語に切り替え可能。 |
+| プライバシー | 広告・寄付ボタン・テレメトリーなし。複数端末同期なし。 |
 
-1. **A monthly-active-user count.** On sign-in and on each token refresh the app sends a
-   random per-install UUID (stored in `<userData>/install-id` — not an account, not usage
-   data); the Worker stores only a salted hash of it and never forwards it to Freesound.
-2. **Error-category counts.** When a Preview, a search, or a download fails, the app adds
-   one to an in-memory tally and, every few minutes, POSTs the tallies to the Worker's
-   `/report` endpoint. Each row is: the app version, OS / architecture / OS release, a
-   fixed error kind (e.g. `preview_failed` + `MEDIA_ERR_NETWORK`), and a count. **Never** a
-   message, stack trace, file path, search query, URL, or any identifier — the counts are
-   not linked to an install or to each other.
+## 動作環境と導入
 
-`SDS_TELEMETRY=0` (or `false` / `off` / `no`) in `apps/desktop/.env` disables
-transmission of **both**. On the Worker, leave `MAU_HASH_SALT` unset to avoid recording
-(1), and leave the `ERROR_ANALYTICS` block in `worker/wrangler.toml` commented out to
-avoid recording (2). Details in
-[`worker/README.md`](worker/README.md#monthly-active-users).
+Windows 10/11 x64。リリースページの `SDS-Sound-Setup-0.1.0.exe` をダウンロードして実行します。現時点でコード署名はありません。詳細は[INSTALL.md](INSTALL.md)を参照してください。macOS向けソースコードも含みますが、このリリースで配布・検証するのはWindows版です。
 
-## Develop
+Freesound検索にはFreesoundアカウントと、SDS-Sound専用のAPI登録・OAuth Worker設定が必要です。配布用の認証情報が準備できるまで、公開版のログインは未提供です。ローカルライブラリはログインなしで使えます。[SETUP.md](SETUP.md)に設定手順があります。
 
-```sh
-pnpm install
-cp apps/desktop/.env.example apps/desktop/.env   # then fill in per SETUP.md
-pnpm --filter @superduper/desktop dev            # hot reload, main + renderer
-pnpm -r test                                     # Vitest, no Electron
-pnpm -r typecheck
+## ソースからビルド
+
+Node.js 24 と pnpm を用意します。`apps/desktop/.env.example` を `apps/desktop/.env` にコピーし、SDS-Sound専用のClient IDとWorker URLを設定します。Client Secretはデスクトップアプリに置かず、WorkerのSecretとして登録します。
+
+```powershell
+pnpm install --frozen-lockfile
+pnpm --filter @superduper/desktop typecheck
+pnpm --filter @superduper/desktop test
+pnpm --filter @superduper/desktop pack:win
 ```
 
-- **pnpm** workspace, **Node 24**, **TypeScript** `strict`, **Vitest**.
-- `apps/desktop` — the Electron app (electron-vite).
-- `worker` — the stateless Cloudflare Worker that does the OAuth token exchange.
+生成物は `apps/desktop/dist/` にできます。
 
-## Architecture
+## ライセンスと出典
 
-The rule the codebase is organised around: *if a behaviour can't be exercised without
-launching Electron, it's in the wrong place.*
+アプリのソースコードは[MIT](LICENSE)です。元のSuper Duper Softwareの著作権表示を保持しています。Splicerrのコードは含めていません。フォント、Electron、同梱するFFmpegなどの第三者コンポーネントは個別のライセンスに従います。[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)を参照してください。Freesoundの各音声には個別のCreative Commonsライセンスがあり、ダウンロードした音源の利用条件を確認してください。
 
-| Layer | Directory | Role |
-|---|---|---|
-| Core | `apps/desktop/src/core/` | Plain Node module. All behaviour. No `electron` import, ever. |
-| Gateway | `apps/desktop/src/core/gateway/` | The sole network boundary to Freesound. |
-| Main | `apps/desktop/src/main/` | Thin Electron adapter — constructs the core, forwards its command API over IPC. No business logic. |
-| Preload | `apps/desktop/src/preload/` | `contextBridge` surface. `contextIsolation`, `sandbox`, no `nodeIntegration`. |
-| Renderer | `apps/desktop/src/renderer/` | React + Tailwind. Presentation only. Reaches the core through `window.core`. |
+## 現在の制限
 
-Terminology is defined in [CONTEXT.md](CONTEXT.md); repo conventions in
-[CONVENTIONS.md](CONVENTIONS.md).
-
-## License
-
-[MIT](LICENSE) — © 2026 Super Duper Software. Sounds fetched from Freesound carry
-their own Creative Commons licenses; the app records them and generates attribution.
+BPM・キーはFreesoundの自動解析値で、すべての音源に付いているわけではありません。Windowsインストーラーは未署名です。実アカウントでのOAuth、検索、ダウンロードはまだ未検証です。詳しくは[GAPS.ja.md](GAPS.ja.md)を参照してください。

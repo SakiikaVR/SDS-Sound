@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useCollections } from '../store/useCollections'
 import { useMultiSelect } from '../store/useMultiSelect'
 import { CollectionMenu } from './CollectionMenu'
+import { t } from '../lib/locale'
 
 export function AddToCollectionBar() {
   const checked = useMultiSelect((s) => s.checked)
@@ -23,19 +24,19 @@ export function AddToCollectionBar() {
   return (
     <div className="flex items-center gap-3 border-b border-line bg-surface-raised px-4 py-1.5 text-xs text-ink-muted">
       <span className="tabular-nums">
-        {count} {count === 1 ? 'sound' : 'sounds'} selected
+        {t(`${count} ${count === 1 ? 'sound' : 'sounds'} selected`, `${count} 件選択中`)}
       </span>
       <CollectionMenu
-        label="Add to collection ▾"
+        label={t('Add to collection ▾', 'コレクションに追加 ▾')}
         onPick={onPick}
-        title="Add the selected sounds to a collection"
+        title={t('Add the selected sounds to a collection', '選択した音をコレクションに追加')}
       />
       <button
         type="button"
         onClick={clear}
         className="rounded border border-line px-1.5 py-0.5 text-[11px] text-ink-muted hover:border-line-strong hover:text-ink"
       >
-        Clear selection
+        {t('Clear selection', '選択を解除')}
       </button>
     </div>
   )

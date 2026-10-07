@@ -14,9 +14,9 @@
 # file packages that plus the production node_modules electron-builder resolves
 # on its own (native better-sqlite3, ffmpeg-static — both asar-unpacked below).
 
-appId: net.superdupersoftware.samples
-productName: Super Duper Samples
-copyright: © Super Duper Software
+appId: io.github.sakiikavr.sds-sound
+productName: SDS-Sound
+copyright: © 2026 Super Duper Software and SDS-Sound contributors
 
 directories:
   output: dist
@@ -33,6 +33,18 @@ files:
 extraResources:
   - from: resources/drag-icon.png
     to: drag-icon.png
+  - from: resources/icon.ico
+    to: icon.ico
+  - from: ../../LICENSE
+    to: licenses/SDS-Sound-MIT.txt
+  - from: ../../third_party/fonts/Archivo-OFL.txt
+    to: licenses/Archivo-OFL.txt
+  - from: ../../third_party/fonts/IBM-Plex-OFL.txt
+    to: licenses/IBM-Plex-OFL.txt
+  - from: ../../third_party/ffmpeg/GPL-3.0.txt
+    to: licenses/FFmpeg-GPL-3.0.txt
+  - from: ../../third_party/ffmpeg/BUILD-INFO.txt
+    to: licenses/FFmpeg-BUILD-INFO.txt
 
 # Native / binary payloads must live outside the asar so they are executable and
 # loadable at runtime.
@@ -68,7 +80,7 @@ mac:
 
 dmg:
   # Plain default window (app icon + Applications alias) — no background art to maintain.
-  artifactName: SDS-${version}-${arch}.dmg
+  artifactName: SDS-Sound-${version}-${arch}.dmg
 
 win:
   icon: resources/icon.ico
@@ -83,6 +95,6 @@ nsis:
   allowElevation: false
   allowToChangeInstallationDirectory: true
   deleteAppDataOnUninstall: false
-  artifactName: SDS-Setup-${version}.exe
+  artifactName: SDS-Sound-Setup-${version}.exe
 
 afterPack: ./scripts/electron-builder-after-pack.mjs

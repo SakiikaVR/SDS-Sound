@@ -175,7 +175,8 @@
 
 	/* ---- Audio ------------------------------------------------------------- */
 	--sd-wave: var(--sd-gray-400);
-	--sd-wave-played: var(--sd-orange-500);
+	--sd-wave-played: #159fc9;
+	--sd-wave-mid: rgba(21, 159, 201, 0.3);
 	--sd-playhead: var(--sd-gray-950);
 
 	/* ==========================================================================
@@ -286,6 +287,7 @@
 
 		--sd-wave: var(--sd-gray-600);
 		--sd-wave-played: var(--sd-orange-500);
+		--sd-wave-mid: rgba(255, 90, 31, 0.3);
 		--sd-playhead: var(--sd-gray-50);
 
 		--sd-bevel-light: rgba(255, 255, 255, 0.18);
@@ -331,10 +333,18 @@
 
 	--sd-wave: var(--sd-gray-600);
 	--sd-wave-played: var(--sd-orange-500);
+	--sd-wave-mid: rgba(255, 90, 31, 0.3);
 	--sd-playhead: var(--sd-gray-50);
 
 	--sd-bevel-light: rgba(255, 255, 255, 0.18);
 	--sd-bevel-dark: rgba(0, 0, 0, 0.7);
+}
+
+:root[data-sd-theme="light"] {
+	color-scheme: light;
+	--sd-wave: #159fc9;
+	--sd-wave-played: #159fc9;
+	--sd-wave-mid: rgba(21, 159, 201, 0.3);
 }
 
 /* ============================================================================

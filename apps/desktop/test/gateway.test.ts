@@ -95,7 +95,7 @@ describe('HttpFreesoundGateway', () => {
     } as Response
   }
 
-  it('requests search/text with the user Bearer token and exactly the row field set', async () => {
+  it('requests unified search with the user Bearer token and exactly the row field set', async () => {
     const fetchImpl = vi.fn(
       (_url: URL, _init?: RequestInit) =>
         Promise.resolve(fakeResponse(loadFixture('search-rain.json'))),
@@ -108,7 +108,7 @@ describe('HttpFreesoundGateway', () => {
 
     expect(fetchImpl).toHaveBeenCalledTimes(1)
     const [url, opts] = fetchImpl.mock.calls[0] as [URL, RequestInit]
-    expect(url.toString()).toContain('https://freesound.org/apiv2/search/text/')
+    expect(url.toString()).toContain('https://freesound.org/apiv2/search/')
     expect(url.searchParams.get('query')).toBe('rain')
     expect(url.searchParams.get('page')).toBe('2')
     expect(url.searchParams.get('page_size')).toBe('15')

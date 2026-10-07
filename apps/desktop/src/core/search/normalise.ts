@@ -15,6 +15,10 @@ export function normalizeFilter(
   const out: SearchFilter = {}
   if (filter.durationMin != null) out.durationMin = filter.durationMin
   if (filter.durationMax != null) out.durationMax = filter.durationMax
+  if (filter.bpmMin != null) out.bpmMin = filter.bpmMin
+  if (filter.bpmMax != null) out.bpmMax = filter.bpmMax
+  if (filter.tonalityKey) out.tonalityKey = filter.tonalityKey
+  if (filter.tonalityMode) out.tonalityMode = filter.tonalityMode
   if (filter.sampleRate != null) out.sampleRate = filter.sampleRate
   if (filter.bitDepth != null) out.bitDepth = filter.bitDepth
   if (filter.channels != null) out.channels = filter.channels

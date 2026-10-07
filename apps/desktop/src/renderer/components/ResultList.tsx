@@ -19,6 +19,7 @@ export interface ResultListProps {
   loadMore: () => void
   /** Return focus to the search input (bound to `/` and Esc). */
   onFocusSearch: () => void
+  onFindSimilar?: (sound: Sound) => void
   /**
    * `'search'` (default), `'library'`, or `'collection'`. The non-search
    * variants show per-row actions + a checkbox and bind Delete/Backspace to
@@ -52,6 +53,7 @@ export function ResultList({
   loadingMore,
   loadMore,
   onFocusSearch,
+  onFindSimilar,
   variant = 'search',
   onRemove,
   removeLabel,
@@ -267,6 +269,7 @@ export function ResultList({
                 start={vi.start}
                 size={vi.size}
                 onSelect={onSelect}
+                onFindSimilar={onFindSimilar}
                 variant={variant}
                 onRemove={onRemove}
                 removeLabel={removeLabel}

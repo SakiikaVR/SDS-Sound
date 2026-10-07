@@ -46,6 +46,10 @@ export interface Sound {
   samplerate: number
   channels: number
   bitdepth: number
+  /** Freesound's automatically estimated tempo; absent when unavailable. */
+  bpm?: number
+  /** Freesound's automatically estimated tonality, e.g. "F# minor". */
+  tonality?: string
   previewUrls: PreviewUrls
   waveformUrls: WaveformUrls
   spectralUrls?: SpectralUrls
@@ -94,6 +98,14 @@ export interface SearchFilter {
   durationMin?: number
   /** Seconds, inclusive. */
   durationMax?: number
+  /** Estimated tempo in beats per minute, inclusive. */
+  bpmMin?: number
+  /** Estimated tempo in beats per minute, inclusive. */
+  bpmMax?: number
+  /** Estimated root note, e.g. C#; used with tonalityMode. */
+  tonalityKey?: string
+  /** Estimated major/minor mode; used with tonalityKey. */
+  tonalityMode?: 'major' | 'minor'
   /** Hz, e.g. 44100 / 48000. */
   sampleRate?: number
   /** e.g. 16 / 24. */
@@ -159,6 +171,10 @@ export interface LibraryFilter {
   durationMin?: number
   /** Seconds, inclusive. */
   durationMax?: number
+  bpmMin?: number
+  bpmMax?: number
+  tonalityKey?: string
+  tonalityMode?: 'major' | 'minor'
   /** Case-insensitive exact match, e.g. `'wav'` / `'aiff'`. */
   fileType?: string
   /** Free text — matched against custom name, Freesound name, author and every tag. */
@@ -182,6 +198,8 @@ export interface CollectionRef {
 }
 
 export interface SearchOptions {
+  /** Freesound sound id used for content-based similarity search. */
+  similarTo?: number
   /** 1-based. Defaults to 1. */
   page?: number
   /** Defaults to 15. */

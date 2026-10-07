@@ -114,13 +114,6 @@ export interface Core {
   /** Persist a patch of shell state. `undefined` keys keep their stored value. */
   setUiState(patch: Partial<UiState>): UiState
 
-  /**
-   * How many times the app has launched, this launch included (>= 1). Bumped
-   * once per `createCore`. The renderer uses it to hold the Ko-fi splash back
-   * until the second launch.
-   */
-  getLaunchCount(): number
-
   /** The app's log file path, or `null` when logging is not wired. */
   getLogPath(): string | null
 
@@ -162,7 +155,7 @@ export interface Core {
    */
   downloadToLibrary(soundId: number, sound?: Sound): void
 
-  /** Originals downloaded from Freesound in the last rolling 24 h (their cap is 2,000). */
+  /** Originals downloaded from Freesound in the last rolling 24 h (standard cap: 500). */
   getDownloadsInLast24h(): number
 
   cancelStaging(soundId: number): void
@@ -214,6 +207,9 @@ export interface Core {
     sound?: Sound,
     collectionIds?: readonly number[],
   ): void
+
+  /** Copy a local audio file into the Library and return its locally assigned id. */
+  importLocalFile(filePath: string): Promise<{ soundId: number }>
 
   /** Batch "is this in the Library?" for search-result badging. */
   getLibraryMembership(ids: number[]): Record<number, boolean>

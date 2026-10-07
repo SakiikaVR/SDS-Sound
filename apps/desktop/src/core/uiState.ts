@@ -22,13 +22,6 @@ export interface UiState {
    * back in it when `view` is `'edit'`. `null`/absent outside the Edit view.
    */
   editSoundId?: number | null
-  /**
-   * Set once the user dismisses the Ko-fi support splash with "don't show
-   * again" / "already donated". There is no way to detect a real donation
-   * (Ko-fi only reports those server-side), so this is self-reported and
-   * simply suppresses the splash on every later startup.
-   */
-  supportPromptDismissed?: boolean
 }
 
 export const EMPTY_UI_STATE: UiState = {}
@@ -96,8 +89,6 @@ export function normaliseUiState(raw: unknown): UiState {
   const eid = r['editSoundId']
   if (eid === null) out.editSoundId = null
   else if (num(eid) !== undefined) out.editSoundId = num(eid)
-
-  if (r['supportPromptDismissed'] === true) out.supportPromptDismissed = true
 
   return out
 }

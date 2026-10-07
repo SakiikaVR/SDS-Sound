@@ -52,10 +52,10 @@ const EMPTY: SidecarScan = {
 
 /** Leading integer of a content-store basename (`442827.wav` -> 442827). */
 function idFromBasename(name: string): number | null {
-  const m = /^(\d+)\./.exec(name)
+  const m = /^(-?\d+)\./.exec(name)
   if (!m) return null
   const n = Number(m[1])
-  return Number.isSafeInteger(n) && n > 0 ? n : null
+  return Number.isSafeInteger(n) && n !== 0 ? n : null
 }
 
 /**
@@ -124,7 +124,7 @@ export async function scanSidecars(
   }
 
   const files = entries.filter((f) => !f.endsWith('.part'))
-  const jsonFiles = files.filter((f) => /^\d+(-edited(-\d+)?)?\.json$/.test(f)).sort()
+  const jsonFiles = files.filter((f) => /^-?\d+(-edited(-\d+)?)?\.json$/.test(f)).sort()
   const audioFiles = files.filter((f) => !f.endsWith('.json'))
   const audioFileSet = new Set(audioFiles)
 

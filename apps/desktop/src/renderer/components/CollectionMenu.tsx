@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { useCollections } from '../store/useCollections'
+import { t } from '../lib/locale'
 
 export interface CollectionMenuProps {
   /** Button label. */
@@ -142,7 +143,7 @@ export function CollectionMenu({
             <div className="max-h-52 overflow-auto">
               {collections.length === 0 && (
                 <p className="px-2 py-1.5 text-[11px] text-ink-faint">
-                  No collections yet.
+                  {t('No collections yet.', 'コレクションはまだありません。')}
                 </p>
               )}
               {collections.map((c) => (
@@ -163,7 +164,7 @@ export function CollectionMenu({
 
             <div className="mt-1 flex items-center gap-1 border-t border-line pt-1">
               <label htmlFor={fieldId} className="sr-only">
-                New collection name
+                {t('New collection name', '新しいコレクション名')}
               </label>
               <input
                 id={fieldId}
@@ -176,7 +177,7 @@ export function CollectionMenu({
                     void onCreate()
                   }
                 }}
-                placeholder="New collection…"
+                placeholder={t('New collection…', '新しいコレクション…')}
                 className="min-w-0 flex-1 rounded border border-line bg-bg px-1.5 py-1 text-xs text-ink placeholder:text-ink-faint focus:border-focus focus:outline-none"
               />
               <button
@@ -185,7 +186,7 @@ export function CollectionMenu({
                 disabled={newName.trim() === ''}
                 className="shrink-0 rounded border border-line px-1.5 py-1 text-[11px] text-ink-muted hover:border-line-strong hover:text-ink disabled:opacity-40"
               >
-                Add
+                {t('Add', '追加')}
               </button>
             </div>
           </div>,

@@ -45,6 +45,7 @@ export interface RebuildOffer {
  * Electron itself and are documented below.
  */
 export interface CoreApi {
+  importLocalFiles(): Promise<number[]>
   search(query: string, opts?: SearchOptions): Promise<SearchResult>
   searchDebounced(query: string, opts?: SearchOptions): Promise<SearchResult>
 
@@ -53,7 +54,6 @@ export interface CoreApi {
 
   getUiState(): Promise<UiState>
   setUiState(patch: Partial<UiState>): Promise<UiState>
-  getLaunchCount(): Promise<number>
   getLogPath(): Promise<string | null>
   readLog(opts?: { maxLines?: number }): Promise<string[]>
   log(
@@ -65,14 +65,6 @@ export interface CoreApi {
   reportError(event: ClientErrorEvent): Promise<void>
   /** Reveal the log file in Finder / Explorer. */
   showLogs(): Promise<void>
-  /** Open the Ko-fi support page in the user's default browser. */
-  openSupportPage(): Promise<void>
-  /**
-   * Open the user's mail client with a new message to the support address
-   * (fixed in the main process); `subject` / `body` prefill the draft.
-   */
-  openSupportEmail(opts?: { subject?: string; body?: string }): Promise<void>
-
   signIn(): Promise<AuthState>
   signOut(): Promise<void>
   getAuthState(): Promise<AuthState>

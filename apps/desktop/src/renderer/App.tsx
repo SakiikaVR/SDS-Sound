@@ -7,7 +7,6 @@ import { ManifestPanel } from './components/ManifestPanel'
 import { NotificationHost } from './components/NotificationHost'
 import { RebuildBanner } from './components/RebuildBanner'
 import { ShortcutsDialog } from './components/ShortcutsDialog'
-import { SupportSplash } from './components/SupportSplash'
 import { TransportBar } from './components/TransportBar'
 import { AppHeader } from './shell/AppHeader'
 import { ContextBar } from './shell/ContextBar'
@@ -21,6 +20,7 @@ import { useLibraryView } from './hooks/useLibraryView'
 import { useSearch } from './hooks/useSearch'
 import { useSearchErrorNotice } from './hooks/useSearchErrorNotice'
 import { formatResultCount } from './lib/format'
+import { t } from './lib/locale'
 import { useCollections } from './store/useCollections'
 import { useLibrary } from './store/useLibrary'
 import { hasLibraryFilter, useLibraryFilter } from './store/useLibraryFilter'
@@ -29,12 +29,13 @@ import { useResultSelection } from './store/useResultSelection'
 import { useSearchPrefs } from './store/useSearchPrefs'
 import type { Sound } from '../core/types'
 
-const countLabel = (n: number) => `${n} ${n === 1 ? 'sound' : 'sounds'}`
+const countLabel = (n: number) => t(`${n} ${n === 1 ? 'sound' : 'sounds'}`, `${n} 件のサウンド`)
 
 export default function App() {
   const shell = useShellState()
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [showLogs, setShowLogs] = useState(false)
+  const [similarSound, setSimilarSound] = useState<Sound | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const sort = useSearchPrefs((s) => s.sort)
@@ -56,6 +57,7 @@ export default function App() {
     sort,
     filter,
     prefsReady && shell.uiReady && authed,
+    similarSound?.id,
   )
   const library = useLibraryView(shell.view === 'library', libraryFilter)
   const collection = useCollectionView(
@@ -109,9 +111,8 @@ export default function App() {
 
   const confirmRemoveFromLibrary = useCallback((sound: Sound) => {
     const ok = window.confirm(
-      `Remove “${sound.name}” from your Library?\n\n` +
-        'This also deletes the downloaded Original from this device. ' +
-        'You can download it again from search later.',
+      t(`Remove “${sound.name}” from your Library?\n\nThis also deletes the downloaded Original from this device. You can download it again from search later.`,
+        `「${sound.name}」をライブラリから削除しますか？\n\n端末に保存したオリジナル音声も削除されます。後で検索から再ダウンロードできます。`),
     )
     if (ok) {
       useMultiSelect.getState().set(sound.id, false)
@@ -159,6 +160,7 @@ export default function App() {
             authed={authed}
             inputRef={inputRef}
             onSearchKeyDown={onSearchKeyDown}
+            onSearchChange={() => setSimilarSound(null)}
             libraryDir={library.dir}
             setLibraryDir={library.setDir}
             collectionDir={collection.dir}
@@ -179,6 +181,9 @@ export default function App() {
             search={search}
             resultCountText={resultCountText}
             onFocusSearch={focusSearch}
+            similarTo={similarSound ?? undefined}
+            onFindSimilar={(sound) => { setSimilarSound(sound); shell.setQuery(''); shell.selectView('search') }}
+            onClearSimilar={() => setSimilarSound(null)}
           />
         )}
 
@@ -233,15 +238,6 @@ export default function App() {
         />
       )}
       {showLogs && <LogViewerDialog onClose={() => setShowLogs(false)} />}
-      {shell.showSupport && (
-        <SupportSplash
-          onDismiss={(dontShowAgain) => {
-            shell.setShowSupport(false)
-            if (dontShowAgain)
-              void window.core.setUiState({ supportPromptDismissed: true })
-          }}
-        />
-      )}
       {shell.view === 'edit' && shell.editingSound && (
         <EditView sound={shell.editingSound} onClose={shell.closeEdit} />
       )}

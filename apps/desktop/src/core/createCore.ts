@@ -1,4 +1,11 @@
 import type { Core, CoreDeps } from './api'
+import { readFile, stat } from 'node:fs/promises'
+import { basename, extname } from 'node:path'
+import { nextEditId } from './db/edits'
+import { upsertSound } from './db/sounds'
+import { saveLibraryEntry } from './db/library'
+import { writeOriginal } from './staging/contentStore'
+import type { Sound } from './types'
 import { classifyError } from './classifyError'
 import { createLogger, NULL_LOG_SINK, type Logger } from './logging/logger'
 import { mergeUiState } from './uiState'
@@ -29,7 +36,6 @@ import { DEFAULT_STAGING_BYTE_BUDGET } from './staging/eviction'
 import { createLibraryCommands } from './library/libraryCommands'
 import { createCollectionCommands } from './collections/collectionCommands'
 import {
-  bumpLaunchCount,
   readLibraryFilter,
   readSearchPrefs,
   readUiState,
@@ -49,7 +55,6 @@ export function createCore(deps: CoreDeps): Core {
 
   const startupAssessment = assessStartup({ dbPath, dataDir })
   const db: DB = openDb(dbPath)
-  const launchCount = bumpLaunchCount(db)
   const logger: Logger = createLogger(deps.logSink ?? NULL_LOG_SINK)
 
   sweepDragDir(dataDir, logger)
@@ -157,7 +162,6 @@ export function createCore(deps: CoreDeps): Core {
     getUiState: () => readUiState(db),
     setUiState: (patch) =>
       writeUiState(db, mergeUiState(readUiState(db), patch ?? {})),
-    getLaunchCount: () => launchCount,
     getLogPath: () => logger.path(),
     readLog: (opts) => logger.read(opts?.maxLines ?? 500),
     log: (level, message, meta) => logger[level]?.(message, meta),
@@ -188,6 +192,45 @@ export function createCore(deps: CoreDeps): Core {
     clearStaged: () => staging.clearStaged(),
 
     ...library,
+    async importLocalFile(filePath) {
+      const ext = extname(filePath).slice(1).toLowerCase()
+      if (!['wav', 'aiff', 'aif', 'flac', 'mp3', 'ogg', 'm4a'].includes(ext)) {
+        throw new Error('Unsupported audio file format')
+      }
+      const info = await stat(filePath)
+      if (!info.isFile() || info.size === 0 || info.size > 256_000_000) {
+        throw new Error('Audio file is empty or too large')
+      }
+      const bytes = await readFile(filePath)
+      const soundId = nextEditId(db)
+      const sound: Sound = {
+        id: soundId,
+        name: basename(filePath),
+        username: 'Local',
+        license: { url: '', name: 'Local' },
+        duration: 0,
+        tags: [],
+        filesize: bytes.byteLength,
+        type: ext,
+        samplerate: 0,
+        channels: 0,
+        bitdepth: 0,
+        previewUrls: { hqMp3: '', lqMp3: '', hqOgg: '', lqOgg: '' },
+        waveformUrls: { m: '', l: '' },
+        url: '',
+        downloadCount: 0,
+        avgRating: 0,
+        created: new Date(info.birthtimeMs || info.mtimeMs).toISOString(),
+      }
+      const written = await writeOriginal(dataDir, sound, bytes, Date.now())
+      db.transaction(() => {
+        upsertSound(db, sound)
+        db.prepare('UPDATE sounds SET local_path = ? WHERE id = ?').run(written.paths.original, soundId)
+        saveLibraryEntry(db, soundId, Date.now())
+      })()
+      peakService.requestPeaks(soundId)
+      return { soundId }
+    },
     getLibraryFilter: () => readLibraryFilter(db),
     setLibraryFilter: (filter) => writeLibraryFilter(db, filter),
 

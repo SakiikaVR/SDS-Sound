@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { t } from '../lib/locale'
 
 export interface RailTransportMenuProps {
   hasSound: boolean
@@ -52,8 +53,8 @@ export function RailTransportMenu({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label="More playback controls"
-        title="More playback controls"
+        aria-label={t('More playback controls', '再生の詳細操作')}
+        title={t('More playback controls', '再生の詳細操作')}
         className="inline-flex items-center justify-center rounded border border-line px-1.5 py-0.5 text-[13px] leading-none text-ink-muted hover:border-line-strong hover:text-ink"
       >
         <span aria-hidden>⋯</span>
@@ -62,7 +63,7 @@ export function RailTransportMenu({
       {open && (
         <div
           role="dialog"
-          aria-label="Playback controls"
+          aria-label={t('Playback controls', '再生操作')}
           className="absolute bottom-full right-0 z-30 mb-1 w-52 rounded border border-line bg-surface p-2 text-xs text-ink shadow-xl"
         >
           <button
@@ -74,7 +75,7 @@ export function RailTransportMenu({
             disabled={!hasSound}
             className="mb-2 w-full rounded border border-line px-2 py-1 text-left enabled:hover:border-line-strong disabled:opacity-40"
           >
-            Stop
+            {t('Stop', '停止')}
           </button>
 
           <label className="mb-2 flex items-center gap-1.5">
@@ -84,7 +85,7 @@ export function RailTransportMenu({
               onChange={(e) => setLoop(e.target.checked)}
               className="accent-[var(--sd-accent-2)]"
             />
-            Loop
+            {t('Loop', 'ループ')}
           </label>
 
           <label className="mb-2 flex items-center gap-1.5">
@@ -94,11 +95,11 @@ export function RailTransportMenu({
               onChange={(e) => setAutoAdvance(e.target.checked)}
               className="accent-[var(--sd-accent-2)]"
             />
-            Auto-advance
+            {t('Auto-advance', '自動で次へ')}
           </label>
 
           <label className="flex items-center gap-2">
-            <span className="text-ink-faint">Vol</span>
+            <span className="text-ink-faint">{t('Vol', '音量')}</span>
             <input
               type="range"
               min={0}
@@ -107,7 +108,7 @@ export function RailTransportMenu({
               value={volume}
               onChange={(e) => setVolume(Number(e.target.value))}
               className="h-1 flex-1 accent-[var(--sd-accent-2)]"
-              aria-label="Audition volume"
+              aria-label={t('Audition volume', '試聴音量')}
             />
             <span className="w-8 tabular-nums text-ink-faint">
               {Math.round(volume * 100)}

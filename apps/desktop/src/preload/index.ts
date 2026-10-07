@@ -59,6 +59,7 @@ function on<T>(channel: EventChannel) {
 }
 
 const api: CoreApi = {
+  importLocalFiles: () => ipcRenderer.invoke('core:importLocalFiles'),
   search: (query, opts) => ipcRenderer.invoke('core:search', query, opts),
   searchDebounced: cmd('searchDebounced'),
   getSearchPrefs: cmd('getSearchPrefs'),
@@ -66,14 +67,11 @@ const api: CoreApi = {
 
   getUiState: cmd('getUiState'),
   setUiState: cmd('setUiState'),
-  getLaunchCount: cmd('getLaunchCount'),
   getLogPath: cmd('getLogPath'),
   readLog: cmd('readLog'),
   log: cmd('log'),
   reportError: cmd('reportError'),
   showLogs: () => ipcRenderer.invoke('core:showLogs'),
-  openSupportPage: () => ipcRenderer.invoke('core:openSupportPage'),
-  openSupportEmail: (opts) => ipcRenderer.invoke('core:openSupportEmail', opts),
 
   signIn: cmd('signIn'),
   signOut: cmd('signOut'),

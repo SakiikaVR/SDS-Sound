@@ -4,9 +4,7 @@ import { drawPeakWaveform } from '../../lib/waveformPeaks'
 import * as editAudio from '../../store/editAudioController'
 import type { PeaksEntry } from '../../store/usePeaks'
 import type { WaveformGestures } from './useWaveformGestures'
-
-const WAVE_COLOR = 'rgba(255, 90, 31, 0.9)'
-const WAVE_MID_COLOR = 'rgba(255, 90, 31, 0.3)'
+import { useTheme } from '../../lib/theme'
 
 /**
  * The waveform box: the peaks canvas, the region overlay and the playhead. The
@@ -26,6 +24,7 @@ export function EditWaveform({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const playheadRef = useRef<HTMLDivElement>(null)
+  const theme = useTheme()
   const { zoom, region, toBoxPct } = gestures
 
   const redraw = useCallback(() => {
@@ -42,11 +41,11 @@ export function EditWaveform({
         dpr: window.devicePixelRatio || 1,
         windowStart: zoom.start,
         windowEnd: zoom.end,
-        color: WAVE_COLOR,
-        midColor: WAVE_MID_COLOR,
+        color: getComputedStyle(document.documentElement).getPropertyValue('--sd-wave-played').trim(),
+        midColor: getComputedStyle(document.documentElement).getPropertyValue('--sd-wave-mid').trim(),
       },
     )
-  }, [peaks, zoom])
+  }, [peaks, zoom, theme])
 
   useEffect(() => {
     if (!hasPeaks) return

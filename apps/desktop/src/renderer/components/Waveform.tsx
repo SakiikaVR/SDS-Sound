@@ -16,6 +16,7 @@ import {
   pointerToFraction,
   zoomWindow,
 } from '../lib/waveformPeaks'
+import { useTheme } from '../lib/theme'
 
 /** Sound ids whose waveform image has been shown at least once this session. */
 const shown = new Set<number>()
@@ -41,6 +42,7 @@ export const Waveform = memo(function Waveform({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const playheadRef = useRef<HTMLDivElement>(null)
   const [masked, setMasked] = useState(() => shown.has(soundId))
+  const theme = useTheme()
 
   const peaks = usePeaks(useShallow(selectPeaks(soundId)))
   const ensurePeaks = usePeaks((s) => s.ensure)
@@ -99,11 +101,11 @@ export const Waveform = memo(function Waveform({
         dpr: window.devicePixelRatio || 1,
         windowStart: zoom.start,
         windowEnd: zoom.end,
-        color: 'rgba(255, 90, 31, 0.9)', // --sd-wave-played (hot orange)
-        midColor: 'rgba(255, 90, 31, 0.3)',
+        color: getComputedStyle(document.documentElement).getPropertyValue('--sd-wave-played').trim(),
+        midColor: getComputedStyle(document.documentElement).getPropertyValue('--sd-wave-mid').trim(),
       },
     )
-  }, [peaks, zoom])
+  }, [peaks, zoom, theme])
 
   useEffect(() => {
     if (!hasPeaks) return

@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { EditSpec } from '../../../preload'
 import type { ExportDialogState } from '../../lib/editSpecBuilder'
 import { formatPreciseDuration } from '../../lib/format'
+import { t } from '../../lib/locale'
 
 export const FORMATS: EditSpec['format'][] = ['wav', 'mp3', 'flac', 'ogg']
 const SAMPLE_RATES = [44100, 48000, 96000]
@@ -58,18 +59,18 @@ export function ExportForm({
             setForm((f) => ({ ...f, trimToRegion: e.target.checked }))
           }
         />
-        Trim to the marked region
+        {t('Trim to the marked region', '選択範囲だけを書き出す')}
         {!hasRegion && (
-          <span className="text-xs text-ink-faint">(no region marked)</span>
+          <span className="text-xs text-ink-faint">{t('(no region marked)', '（範囲が選択されていません）')}</span>
         )}
       </label>
 
       <p className="text-xs tabular-nums text-ink-faint">
-        Output duration: {formatPreciseDuration(outputDuration)}
+        {t('Output duration:', '書き出し時間:')} {formatPreciseDuration(outputDuration)}
       </p>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Format">
+        <Field label={t('Format', '形式')}>
           <select
             value={form.format}
             onChange={(e) =>
@@ -88,7 +89,7 @@ export function ExportForm({
           </select>
         </Field>
 
-        <Field label="Sample rate">
+        <Field label={t('Sample rate', 'サンプルレート')}>
           <select
             value={form.sampleRate ?? 'source'}
             onChange={(e) =>
@@ -100,7 +101,7 @@ export function ExportForm({
             }
             className={FIELD_CLASS}
           >
-            <option value="source">Same as source</option>
+            <option value="source">{t('Same as source', '元の音声と同じ')}</option>
             {SAMPLE_RATES.map((r) => (
               <option key={r} value={r}>
                 {r.toLocaleString()} Hz
@@ -109,7 +110,7 @@ export function ExportForm({
           </select>
         </Field>
 
-        <Field label="Channels">
+        <Field label={t('Channels', 'チャンネル')}>
           <select
             value={form.channels ?? 'source'}
             onChange={(e) =>
@@ -123,9 +124,9 @@ export function ExportForm({
             }
             className={FIELD_CLASS}
           >
-            <option value="source">Same as source</option>
-            <option value={1}>Mono</option>
-            <option value={2}>Stereo</option>
+            <option value="source">{t('Same as source', '元の音声と同じ')}</option>
+            <option value={1}>{t('Mono', 'モノラル')}</option>
+            <option value={2}>{t('Stereo', 'ステレオ')}</option>
           </select>
         </Field>
 
@@ -137,11 +138,11 @@ export function ExportForm({
               setForm((f) => ({ ...f, normalize: e.target.checked }))
             }
           />
-          <span className="text-xs text-ink-muted">Loudness-normalise</span>
+          <span className="text-xs text-ink-muted">{t('Loudness-normalise', '音量を正規化')}</span>
         </label>
       </div>
 
-      <Field label="Name">
+      <Field label={t('Name', '名前')}>
         <input
           type="text"
           value={name}
@@ -157,14 +158,14 @@ export function ExportForm({
           onClick={onCancel}
           className="rounded border border-line px-3 py-1.5 text-ink-muted hover:border-line-strong hover:text-ink"
         >
-          Cancel
+          {t('Cancel', 'キャンセル')}
         </button>
         <button
           type="button"
           onClick={onConfirm}
           className="rounded border border-accent bg-accent px-3 py-1.5 text-accent-on hover:bg-accent-hover"
         >
-          Export
+          {t('Export', '書き出す')}
         </button>
       </div>
     </div>

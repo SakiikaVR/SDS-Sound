@@ -15,6 +15,14 @@ export function resolveDragIconPath(): string {
   return candidates.find((p) => existsSync(p)) ?? candidates[0]!
 }
 
+export function resolveWindowIconPath(): string {
+  const candidates = [
+    join(__dirname, '../../resources/icon.ico'),
+    process.resourcesPath ? join(process.resourcesPath, 'icon.ico') : '',
+  ].filter(Boolean)
+  return candidates.find((path) => existsSync(path)) ?? candidates[0]!
+}
+
 /**
  * `ffmpeg-static` exports a path computed from its own `__dirname`, which in a
  * packaged build sits *inside* `app.asar` — a file, not a directory, so

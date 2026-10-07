@@ -44,7 +44,7 @@ describe('database migrations', () => {
       expect(tables).toContain(t)
     }
 
-    expect(db.pragma('user_version', { simple: true })).toBe(5)
+    expect(db.pragma('user_version', { simple: true })).toBe(6)
   })
 
   it('migration 002 adds the staging content-store columns and app_meta', async () => {
@@ -127,12 +127,12 @@ describe('database migrations', () => {
     const dbPath = await tempDbPath()
 
     const created = openTempDb(dbPath)
-    expect(created.pragma('user_version', { simple: true })).toBe(5)
+    expect(created.pragma('user_version', { simple: true })).toBe(6)
 
     const second = openTempDb(dbPath)
     const result = runMigrations(second)
     expect(result.applied).toEqual([])
-    expect(second.pragma('user_version', { simple: true })).toBe(5)
+    expect(second.pragma('user_version', { simple: true })).toBe(6)
   })
 
   it('sounds rows persist across two createCore instances on the same dbPath', async () => {

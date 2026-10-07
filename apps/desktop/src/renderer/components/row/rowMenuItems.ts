@@ -2,6 +2,7 @@ import type { Sound } from '../../../core/types'
 import type { OverflowMenuItem } from '../OverflowMenu'
 import type { StagingStatus } from '../../store/useStaging'
 import type { RowVariant } from './types'
+import { t } from '../../lib/locale'
 
 export interface RowMenuParams {
   sound: Sound
@@ -21,6 +22,7 @@ export interface RowMenuParams {
   onEditTags: () => void
   onToggleChecked: () => void
   onAddToCollection: () => void
+  onFindSimilar?: () => void
 }
 
 /**
@@ -32,46 +34,50 @@ export function buildRowMenuItems(p: RowMenuParams): OverflowMenuItem[] {
   const isLibraryVariant = p.variant === 'library' || p.variant === 'collection'
 
   const addToCollection: OverflowMenuItem = {
-    label: 'Add to collection',
+    label: t('Add to collection', 'コレクションに追加'),
     opensNestedPicker: true,
     disabled: !(isLibraryVariant || p.inLibrary),
     onSelect: p.onAddToCollection,
   }
   const openPage: OverflowMenuItem = {
-    label: 'Open Freesound page',
+    label: t('Open Freesound page', 'Freesoundのページを開く'),
     onSelect: p.onOpenFreesoundPage,
   }
+  const similar: OverflowMenuItem | null = p.sound.id > 0 && p.onFindSimilar
+    ? { label: t('Find similar sounds', '似た音を探す'), onSelect: p.onFindSimilar }
+    : null
   const licenceDetail: OverflowMenuItem = {
-    label: `Licence · ${p.sound.license.name}`,
+    label: t(`Licence · ${p.sound.license.name}`, `ライセンス · ${p.sound.license.name}`),
     disabled: true,
     onSelect: () => {},
   }
   const selectToggle: OverflowMenuItem = {
-    label: p.checked ? 'Deselect' : 'Select',
+    label: p.checked ? t('Deselect', '選択を解除') : t('Select', '選択'),
     onSelect: p.onToggleChecked,
   }
 
   if (p.variant === 'search') {
-    if (!p.isRail) return [openPage, addToCollection]
+    if (!p.isRail) return [openPage, ...(similar ? [similar] : []), addToCollection]
     const removeOrGet: OverflowMenuItem = p.inLibrary
       ? {
-          label: p.removeLabel ?? 'Remove from Library',
+          label: p.removeLabel ?? t('Remove from Library', 'ライブラリから削除'),
           destructive: true,
           onSelect: p.onDeleteFromLibrary,
         }
-      : { label: '⬇ Download', onSelect: p.onDownload }
-    return [removeOrGet, addToCollection, openPage, licenceDetail]
+      : { label: t('⬇ Download', '⬇ ダウンロード'), onSelect: p.onDownload }
+    return [removeOrGet, addToCollection, ...(similar ? [similar] : []), openPage, licenceDetail]
   }
 
   const common: OverflowMenuItem[] = [
     addToCollection,
-    { label: 'Edit tags', onSelect: p.onEditTags },
-    { label: 'Rename', onSelect: p.onStartRename },
-    { label: 'Reveal in Finder', onSelect: p.onRevealInFinder },
+    { label: t('Edit tags', 'タグを編集'), onSelect: p.onEditTags },
+    { label: t('Rename', '名前を変更'), onSelect: p.onStartRename },
+    { label: t('Reveal in Finder', 'ファイルの場所を開く'), onSelect: p.onRevealInFinder },
     openPage,
+    ...(similar ? [similar] : []),
   ]
   const editAction: OverflowMenuItem = {
-    label: '✂ Edit',
+    label: t('✂ Edit', '✂ 編集'),
     disabled: p.stagingStatus !== 'ready',
     onSelect: () => p.onEdit?.(p.sound),
   }
@@ -79,8 +85,8 @@ export function buildRowMenuItems(p: RowMenuParams): OverflowMenuItem[] {
     label:
       p.removeLabel ??
       (p.variant === 'collection'
-        ? 'Remove from collection'
-        : 'Remove from Library'),
+        ? t('Remove from collection', 'コレクションから削除')
+        : t('Remove from Library', 'ライブラリから削除')),
     destructive: true,
     onSelect: () => p.onRemove?.(p.sound),
   }

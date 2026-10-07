@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { t } from '../lib/locale'
 
 export interface FilterPopoverProps {
   /** Number of active constraints — shown as a badge, and drives "is it on?". */
@@ -16,7 +17,7 @@ export function FilterPopover({
   count,
   children,
   onClearAll,
-  label = 'Filters',
+  label = t('Filters', 'フィルター'),
 }: FilterPopoverProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -66,7 +67,7 @@ export function FilterPopover({
       {open && (
         <div
           role="dialog"
-          aria-label={`${label} options`}
+          aria-label={t(`${label} options`, `${label}の設定`)}
           className="absolute left-0 z-20 mt-1 w-80 rounded border border-line bg-surface p-3 shadow-lg"
         >
           <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">{children}</div>
@@ -77,7 +78,7 @@ export function FilterPopover({
               disabled={!active}
               className="rounded px-2 py-1 text-[11px] text-ink-muted hover:bg-surface-raised hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent"
             >
-              Clear all
+              {t('Clear all', 'すべて解除')}
             </button>
           </div>
         </div>

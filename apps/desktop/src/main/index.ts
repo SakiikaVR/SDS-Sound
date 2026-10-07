@@ -26,8 +26,10 @@ import { registerIpc } from './ipc'
 import { resolveDragIconPath, resolveFfmpegPath } from './paths'
 import { registerWillQuitHandler } from './quit'
 import { createWindow } from './window'
+import { installApplicationMenu, syncApplicationMenuFromWindow } from './applicationMenu'
 
 void app.whenReady().then(() => {
+  installApplicationMenu(app.getLocale().toLowerCase().startsWith('ja') ? 'ja' : 'en')
   const config = loadConfig()
   const dataDir = app.getPath('userData')
   const dbPath = join(dataDir, 'library.db')
@@ -95,6 +97,7 @@ void app.whenReady().then(() => {
 
   app.on('browser-window-created', (_e, win) => {
     win.webContents.on('did-finish-load', () => {
+      void syncApplicationMenuFromWindow(win)
       win.webContents.send(CHANNELS.authState, core.getAuthState())
       if (startup.offerRebuild) {
         win.webContents.send(CHANNELS.rebuildOffer, {

@@ -14,6 +14,8 @@ interface SoundRow {
   samplerate: number
   channels: number
   bitdepth: number
+  bpm: number | null
+  tonality: string | null
   preview_hq_mp3: string
   preview_lq_mp3: string
   preview_hq_ogg: string
@@ -41,6 +43,8 @@ function rowToSound(r: SoundRow): Sound {
     samplerate: r.samplerate,
     channels: r.channels,
     bitdepth: r.bitdepth,
+    ...(r.bpm != null ? { bpm: r.bpm } : {}),
+    ...(r.tonality ? { tonality: r.tonality } : {}),
     previewUrls: {
       hqMp3: r.preview_hq_mp3,
       lqMp3: r.preview_lq_mp3,
@@ -62,14 +66,14 @@ function rowToSound(r: SoundRow): Sound {
 const UPSERT_SQL = /* sql */ `
   INSERT INTO sounds (
     id, name, username, license_url, license_name, duration, tags, filesize,
-    type, samplerate, channels, bitdepth,
+    type, samplerate, channels, bitdepth, bpm, tonality,
     preview_hq_mp3, preview_lq_mp3, preview_hq_ogg, preview_lq_ogg,
     waveform_m, waveform_l, spectral_m, spectral_l,
     url, download_count, avg_rating, created,
     first_seen_at, updated_at
   ) VALUES (
     @id, @name, @username, @license_url, @license_name, @duration, @tags, @filesize,
-    @type, @samplerate, @channels, @bitdepth,
+    @type, @samplerate, @channels, @bitdepth, @bpm, @tonality,
     @preview_hq_mp3, @preview_lq_mp3, @preview_hq_ogg, @preview_lq_ogg,
     @waveform_m, @waveform_l, @spectral_m, @spectral_l,
     @url, @download_count, @avg_rating, @created,
@@ -87,6 +91,8 @@ const UPSERT_SQL = /* sql */ `
     samplerate = excluded.samplerate,
     channels = excluded.channels,
     bitdepth = excluded.bitdepth,
+    bpm = excluded.bpm,
+    tonality = excluded.tonality,
     preview_hq_mp3 = excluded.preview_hq_mp3,
     preview_lq_mp3 = excluded.preview_lq_mp3,
     preview_hq_ogg = excluded.preview_hq_ogg,
@@ -116,6 +122,8 @@ function soundToParams(s: Sound, now: number): Record<string, unknown> {
     samplerate: s.samplerate,
     channels: s.channels,
     bitdepth: s.bitdepth,
+    bpm: s.bpm ?? null,
+    tonality: s.tonality ?? null,
     preview_hq_mp3: s.previewUrls.hqMp3,
     preview_lq_mp3: s.previewUrls.lqMp3,
     preview_hq_ogg: s.previewUrls.hqOgg,

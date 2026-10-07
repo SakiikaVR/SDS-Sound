@@ -2,39 +2,20 @@ import { useViewport } from '../lib/viewport'
 import { useTransport } from '../store/useTransport'
 import { RailTransportMenu } from './RailTransportMenu'
 import { Waveform } from './Waveform'
+import { t } from '../lib/locale'
 
 function statusLabel(status: string, hasSound: boolean): string {
-  if (!hasSound) return 'Nothing playing'
+  if (!hasSound) return t('Nothing playing', '再生中の音なし')
   switch (status) {
     case 'loading':
-      return 'Buffering…'
+      return t('Buffering…', '読み込み中…')
     case 'playing':
-      return 'Playing'
+      return t('Playing', '再生中')
     case 'paused':
-      return 'Paused'
+      return t('Paused', '一時停止中')
     default:
-      return 'Nothing playing'
+      return t('Nothing playing', '再生中の音なし')
   }
-}
-
-/** Opens ko-fi.com/sparlos in the user's browser; no Ko-fi code runs in the renderer. */
-function SupportButton({ compact }: { compact: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={() => void window.core.openSupportPage()}
-      title="Support this app on Ko-fi"
-      aria-label="Support this app on Ko-fi"
-      className={
-        compact
-          ? 'shrink-0 rounded border border-accent-2 px-2 py-1 text-accent-2-text hover:bg-surface-raised'
-          : 'ml-auto rounded border border-accent-2 px-2 py-1 text-accent-2-text hover:bg-surface-raised'
-      }
-    >
-      <span aria-hidden>♥</span>
-      {!compact && ' Support'}
-    </button>
-  )
 }
 
 export function TransportBar() {
@@ -81,7 +62,7 @@ export function TransportBar() {
                   ? 'border-accent-2 text-accent-2-text'
                   : 'border-line',
             ].join(' ')}
-            aria-label={status === 'playing' ? 'Pause' : 'Play'}
+            aria-label={status === 'playing' ? t('Pause', '一時停止') : t('Play', '再生')}
             title={statusLabel(status, hasSound)}
           >
             {status === 'playing' ? '❚❚' : '▶'}
@@ -93,8 +74,6 @@ export function TransportBar() {
           >
             {currentSound?.name ?? statusLabel(status, hasSound)}
           </span>
-
-          <SupportButton compact />
 
           <RailTransportMenu
             hasSound={hasSound}
@@ -114,7 +93,7 @@ export function TransportBar() {
             onClick={toggle}
             disabled={!hasSound}
             className="grid h-7 w-7 place-items-center rounded-full border border-line text-[11px] enabled:hover:border-line-strong disabled:opacity-40"
-            aria-label={status === 'playing' ? 'Pause' : 'Play'}
+            aria-label={status === 'playing' ? t('Pause', '一時停止') : t('Play', '再生')}
           >
             {status === 'playing' ? '❚❚' : '▶'}
           </button>
@@ -124,7 +103,7 @@ export function TransportBar() {
             disabled={!hasSound}
             className="rounded border border-line px-2 py-1 enabled:hover:border-line-strong disabled:opacity-40"
           >
-            Stop
+            {t('Stop', '停止')}
           </button>
 
           <span className="w-28 shrink-0 tabular-nums text-ink-faint">
@@ -132,7 +111,7 @@ export function TransportBar() {
           </span>
 
           <label className="flex items-center gap-2">
-            <span className="text-ink-faint">Vol</span>
+            <span className="text-ink-faint">{t('Vol', '音量')}</span>
             <input
               type="range"
               min={0}
@@ -141,7 +120,7 @@ export function TransportBar() {
               value={volume}
               onChange={(e) => setVolume(Number(e.target.value))}
               className="h-1 w-28 accent-[var(--sd-accent-2)]"
-              aria-label="Audition volume"
+              aria-label={t('Audition volume', '試聴音量')}
             />
             <span className="w-8 tabular-nums text-ink-faint">
               {Math.round(volume * 100)}
@@ -155,7 +134,7 @@ export function TransportBar() {
               onChange={(e) => setLoop(e.target.checked)}
               className="accent-[var(--sd-accent-2)]"
             />
-            Loop
+            {t('Loop', 'ループ')}
           </label>
 
           <label className="flex items-center gap-1.5">
@@ -165,10 +144,9 @@ export function TransportBar() {
               onChange={(e) => setAutoAdvance(e.target.checked)}
               className="accent-[var(--sd-accent-2)]"
             />
-            Auto-advance
+            {t('Auto-advance', '自動で次へ')}
           </label>
 
-          <SupportButton compact={false} />
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { formatDuration } from '../../lib/format'
+import { t } from '../../lib/locale'
 import { StagingChip } from '../StagingChip'
 import { Waveform } from '../Waveform'
 import { RowMenu, RowName, RowPlayButton, RowTags } from './RowParts'
@@ -17,16 +18,16 @@ export function ResultRowRail({ row }: { row: RowModel }) {
     <span
       role="alert"
       className="shrink-0 whitespace-nowrap rounded border-2 border-license-caution bg-surface-raised px-1 text-[10px] font-bold uppercase tracking-wide text-license-caution"
-      title="Non-commercial license — this Sound may not be used in paid work"
+      title={t('Non-commercial license — this Sound may not be used in paid work', '非商用ライセンス。有料の作品で使用できない場合があります。')}
     >
       ⚠ NC
     </span>
   ) : variant === 'search' && inLibrary ? (
     <span
       className="shrink-0 rounded border border-ok px-1 text-[10px] font-medium uppercase tracking-wide text-ok"
-      title="In your Library — the Original is downloaded"
+      title={t('In your Library — the Original is downloaded', 'ライブラリに保存済みです。')}
     >
-      ✓ Downloaded
+      {t('✓ Downloaded', '✓ 保存済み')}
     </span>
   ) : (
     <StagingChip status={stagingStatus} />
@@ -60,6 +61,8 @@ export function ResultRowRail({ row }: { row: RowModel }) {
         <span className="shrink-0 text-xs tabular-nums text-ink-muted">
           {formatDuration(sound.duration)}
         </span>
+        {sound.bpm != null && <span className="shrink-0 text-[10px] text-ink-muted">{Math.round(sound.bpm)} BPM</span>}
+        {sound.tonality && <span className="shrink-0 text-[10px] text-ink-muted">{sound.tonality}</span>}
         <span
           className="shrink-0 rounded border border-line px-1 text-[10px] font-medium uppercase tracking-wide text-ink-faint"
           title={`File format: ${sound.type.toUpperCase()}`}

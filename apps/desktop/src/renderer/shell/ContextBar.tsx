@@ -2,6 +2,7 @@ import type { KeyboardEvent, RefObject } from 'react'
 import { FilterBar } from '../components/FilterBar'
 import { LibraryFilterBar } from '../components/LibraryFilterBar'
 import { useViewport } from '../lib/viewport'
+import { t } from '../lib/locale'
 import { useMultiSelect } from '../store/useMultiSelect'
 import { useResultSelection } from '../store/useResultSelection'
 import type { ShellState } from './useShellState'
@@ -28,7 +29,7 @@ function SortToggle({
       onClick={onToggle}
       className="rounded border border-line px-1.5 py-0.5 text-ink-muted hover:border-line-strong hover:text-ink"
       title={label}
-      aria-label={`Sort direction: ${label.toLowerCase()}`}
+      aria-label={t(`Sort direction: ${label.toLowerCase()}`, `並び順: ${label}`)}
     >
       {isRail ? (dir === 'desc' ? '↓' : '↑') : label}
     </button>
@@ -40,6 +41,7 @@ export interface ContextBarProps {
   authed: boolean
   inputRef: RefObject<HTMLInputElement | null>
   onSearchKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void
+  onSearchChange?: () => void
   libraryDir: SortDir
   setLibraryDir: (dir: SortDir) => void
   collectionDir: SortDir
@@ -52,6 +54,7 @@ export function ContextBar({
   authed,
   inputRef,
   onSearchKeyDown,
+  onSearchChange,
   libraryDir,
   setLibraryDir,
   collectionDir,
@@ -65,9 +68,9 @@ export function ContextBar({
           ref={inputRef}
           type="search"
           className="w-full rounded border border-line bg-surface px-2 py-1.5 text-sm text-ink placeholder:text-ink-faint focus:border-focus focus:outline-none"
-          placeholder="Search sounds…  (press s to download the selected sound · ? for shortcuts)"
+          placeholder={t('Search sounds…  (press s to download the selected sound · ? for shortcuts)', 'サウンドを検索…（s: 選択した音をダウンロード · ?: ショートカット）')}
           value={shell.query}
-          onChange={(e) => shell.setQuery(e.target.value)}
+          onChange={(e) => { onSearchChange?.(); shell.setQuery(e.target.value) }}
           onKeyDown={onSearchKeyDown}
           autoFocus
         />
@@ -80,12 +83,12 @@ export function ContextBar({
     return (
       <>
         <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
-          <span>Sorted by date saved</span>
+          <span>{t('Sorted by date saved', '保存日時順')}</span>
           <SortToggle
             dir={libraryDir}
             onToggle={() => setLibraryDir(libraryDir === 'desc' ? 'asc' : 'desc')}
-            descLabel="Newest first"
-            ascLabel="Oldest first"
+            descLabel={t('Newest first', '新しい順')}
+            ascLabel={t('Oldest first', '古い順')}
           />
         </div>
         <LibraryFilterBar />
@@ -108,7 +111,7 @@ export function ContextBar({
             }}
             className="rounded border border-line px-1.5 py-0.5 text-ink-muted hover:border-line-strong hover:text-ink"
           >
-            ‹ All collections
+            {t('‹ All collections', '‹ すべてのコレクション')}
           </button>
           <span className="font-medium text-ink">{openCollection.name}</span>
           <SortToggle
@@ -116,21 +119,21 @@ export function ContextBar({
             onToggle={() =>
               setCollectionDir(collectionDir === 'desc' ? 'asc' : 'desc')
             }
-            descLabel="Newest added first"
-            ascLabel="Oldest added first"
+            descLabel={t('Newest added first', '追加が新しい順')}
+            ascLabel={t('Oldest added first', '追加が古い順')}
           />
           <button
             type="button"
             onClick={() => shell.setShowManifest(true)}
             className="rounded border border-accent-2 px-1.5 py-0.5 text-accent-2-text hover:bg-surface-raised"
-            title="Generate the attribution credits this collection owes"
+            title={t('Generate the attribution credits this collection owes', 'このコレクションに必要なクレジットを作成')}
           >
-            Credits
+            {t('Credits', 'クレジット')}
           </button>
         </>
       ) : (
         <span>
-          A collection is a named set of Library sounds. Collections do not nest.
+          {t('A collection is a named set of Library sounds. Collections do not nest.', 'コレクションはライブラリの音をまとめるものです。入れ子にはできません。')}
         </span>
       )}
     </div>

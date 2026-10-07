@@ -38,7 +38,7 @@ export function getEditFieldsByIds(
   const rows = db
     .prepare(
       `SELECT id, derived_from, edit_spec, local_path FROM sounds
-         WHERE id IN (${placeholders}) AND derived_from IS NOT NULL`,
+         WHERE id IN (${placeholders}) AND local_path IS NOT NULL`,
     )
     .all(...ids) as EditFieldsRow[]
   for (const r of rows) out.set(r.id, rowToEditFields(r))

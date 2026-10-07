@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { CollectionSummary } from '../../preload'
 import { useCollections } from '../store/useCollections'
+import { t } from '../lib/locale'
 
 export interface CollectionsPanelProps {
   onOpen: (collection: CollectionSummary) => void
@@ -48,9 +49,8 @@ export function CollectionsPanel({ onOpen }: CollectionsPanelProps) {
 
   const onDelete = useCallback((c: CollectionSummary) => {
     const ok = window.confirm(
-      `Delete the collection “${c.name}”?\n\n` +
-        'Its sounds stay in your Library and in any other collections — ' +
-        'only this grouping is removed.',
+      t(`Delete the collection “${c.name}”?\n\nIts sounds stay in your Library and in any other collections — only this grouping is removed.`,
+        `コレクション「${c.name}」を削除しますか？\n\n音はライブラリと他のコレクションに残ります。`),
     )
     if (ok) void useCollections.getState().remove(c.id)
   }, [])
@@ -68,7 +68,7 @@ export function CollectionsPanel({ onOpen }: CollectionsPanelProps) {
               void onCreate()
             }
           }}
-          placeholder="New collection…"
+          placeholder={t('New collection…', '新しいコレクション…')}
           className="w-64 rounded border border-line bg-surface px-2 py-1.5 text-sm text-ink placeholder:text-ink-faint focus:border-focus focus:outline-none"
         />
         <button
@@ -77,14 +77,13 @@ export function CollectionsPanel({ onOpen }: CollectionsPanelProps) {
           disabled={newName.trim() === ''}
           className="rounded border border-line px-2 py-1.5 text-xs text-ink hover:border-line-strong hover:text-ink disabled:opacity-40"
         >
-          Create
+          {t('Create', '作成')}
         </button>
       </div>
 
       {loaded && collections.length === 0 && (
         <p className="text-sm text-ink-muted">
-          No collections yet. Create one above, then add sounds to it from your
-          Library or search results.
+          {t('No collections yet. Create one above, then add sounds to it from your Library or search results.', 'コレクションはまだありません。上で作成し、ライブラリや検索結果から音を追加してください。')}
         </p>
       )}
 
@@ -120,7 +119,7 @@ export function CollectionsPanel({ onOpen }: CollectionsPanelProps) {
                     {c.name}
                   </span>
                   <span className="shrink-0 text-xs tabular-nums text-ink-faint">
-                    {c.count} {c.count === 1 ? 'sound' : 'sounds'}
+                    {t(`${c.count} ${c.count === 1 ? 'sound' : 'sounds'}`, `${c.count} 件の音`)}
                   </span>
                 </button>
               )}
@@ -129,14 +128,14 @@ export function CollectionsPanel({ onOpen }: CollectionsPanelProps) {
                 onClick={() => startRename(c)}
                 className="rounded border border-line px-1.5 py-0.5 text-[11px] text-ink-muted hover:border-line-strong hover:text-ink"
               >
-                Rename
+                {t('Rename', '名前を変更')}
               </button>
               <button
                 type="button"
                 onClick={() => onDelete(c)}
                 className="rounded border border-error px-1.5 py-0.5 text-[11px] text-error hover:bg-surface-raised"
               >
-                Delete
+                {t('Delete', '削除')}
               </button>
             </div>
           </li>

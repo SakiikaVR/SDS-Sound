@@ -21,7 +21,8 @@ export function formatPreciseDuration(seconds: number): string {
 
 /** `1873` -> `"1,873 results"`, `1` -> `"1 result"`, `0` -> `"No results"`. */
 export function formatResultCount(totalCount: number): string {
-  if (totalCount <= 0) return 'No results'
-  const n = totalCount.toLocaleString('en-US')
-  return `${n} ${totalCount === 1 ? 'result' : 'results'}`
+  if (totalCount <= 0) return t('No results', '検索結果なし')
+  const n = totalCount.toLocaleString(getLocale() === 'ja' ? 'ja-JP' : 'en-US')
+  return getLocale() === 'ja' ? `${n} 件の結果` : `${n} ${totalCount === 1 ? 'result' : 'results'}`
 }
+import { getLocale, t } from './locale'

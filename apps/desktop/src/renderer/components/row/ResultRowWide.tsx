@@ -1,4 +1,5 @@
 import { formatDuration } from '../../lib/format'
+import { t } from '../../lib/locale'
 import { LicenseChip } from '../LicenseChip'
 import { StagingChip } from '../StagingChip'
 import { Waveform } from '../Waveform'
@@ -25,9 +26,9 @@ function DownloadControl({ row }: { row: RowModel }) {
     return (
       <span
         className="shrink-0 rounded border border-line px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-ink-faint"
-        title="Downloading this sound's Original from Freesound"
+        title={t("Downloading this sound's Original from Freesound", 'Freesoundからオリジナル音声をダウンロード中')}
       >
-        Downloading…
+        {t('Downloading…', 'ダウンロード中…')}
       </span>
     )
   }
@@ -39,9 +40,9 @@ function DownloadControl({ row }: { row: RowModel }) {
         onMouseDown={stop}
         onClick={onDownload}
         className="shrink-0 rounded border border-error px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-error hover:bg-surface-raised"
-        title="The download failed — try again"
+        title={t('The download failed — try again', 'ダウンロードに失敗しました。再試行してください。')}
       >
-        ↻ Retry download
+        {t('↻ Retry download', '↻ 再試行')}
       </button>
     )
   }
@@ -60,9 +61,9 @@ function DownloadControl({ row }: { row: RowModel }) {
             ? 'border-error text-error hover:bg-surface-raised'
             : 'border-ok text-ok',
         ].join(' ')}
-        title="In your Library — click to remove it and delete the downloaded Original"
+        title={t('In your Library — click to remove it and delete the downloaded Original', 'ライブラリにあります。クリックするとオリジナル音声も削除します。')}
       >
-        {armDelete ? 'Delete?' : '✓ Downloaded'}
+        {armDelete ? t('Delete?', '削除？') : t('✓ Downloaded', '✓ 保存済み')}
       </button>
     )
   }
@@ -73,9 +74,9 @@ function DownloadControl({ row }: { row: RowModel }) {
       onMouseDown={stop}
       onClick={onDownload}
       className="shrink-0 rounded border border-line px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-ink-muted hover:border-line-strong hover:text-ink"
-      title="Download this sound's Original from Freesound and save it to your Library"
+      title={t("Download this sound's Original from Freesound and save it to your Library", 'Freesoundのオリジナル音声をライブラリに保存')}
     >
-      ⬇ Download
+      {t('⬇ Download', '⬇ ダウンロード')}
     </button>
   )
 }
@@ -106,7 +107,7 @@ export function ResultRowWide({ row }: { row: RowModel }) {
           checked={checked}
           onMouseDown={stop}
           onChange={toggleChecked}
-          aria-label={`Select ${displayName} for batch actions`}
+          aria-label={t(`Select ${displayName} for batch actions`, `${displayName} を選択`)}
           className="h-3.5 w-3.5 shrink-0 accent-[var(--sd-accent-2)]"
         />
       )}
@@ -147,6 +148,8 @@ export function ResultRowWide({ row }: { row: RowModel }) {
           <span className="shrink-0 text-xs tabular-nums text-ink-muted">
             {formatDuration(sound.duration)}
           </span>
+          {sound.bpm != null && <span className="shrink-0 text-[11px] text-ink-muted" title={t('Estimated BPM', '推定BPM')}>{Math.round(sound.bpm)} BPM</span>}
+          {sound.tonality && <span className="shrink-0 text-[11px] text-ink-muted" title={t('Estimated key', '推定キー')}>{sound.tonality}</span>}
           <span
             className="shrink-0 rounded border border-line px-1 text-[10px] font-medium uppercase tracking-wide text-ink-faint"
             title={`File format: ${sound.type.toUpperCase()}`}
@@ -156,9 +159,9 @@ export function ResultRowWide({ row }: { row: RowModel }) {
           {previewFailed && (
             <span
               className="shrink-0 rounded border border-error px-1 text-[10px] font-medium uppercase tracking-wide text-error"
-              title="This Preview failed to load — try again or pick another sound"
+              title={t('This Preview failed to load — try again or pick another sound', 'プレビューを読み込めません。再試行するか別の音を選んでください。')}
             >
-              preview failed
+              {t('preview failed', 'プレビュー失敗')}
             </span>
           )}
           {isLibraryVariant && <StagingChip status={stagingStatus} />}
@@ -186,11 +189,11 @@ export function ResultRowWide({ row }: { row: RowModel }) {
           className="shrink-0 rounded border border-line px-1.5 py-0.5 text-[11px] text-ink-muted hover:border-line-strong hover:text-ink disabled:opacity-40"
           title={
             stagingStatus === 'ready'
-              ? 'Open the Edit view — trim a region and audition the cut'
-              : "This sound's Original is not on disk yet — it can't be edited"
+              ? t('Open the Edit view — trim a region and audition the cut', '編集画面で範囲を切り出して試聴')
+              : t("This sound's Original is not on disk yet — it can't be edited", 'オリジナル音声がまだ保存されていないため編集できません。')
           }
         >
-          ✂ Edit
+          {t('✂ Edit', '✂ 編集')}
         </button>
       )}
 
@@ -202,10 +205,10 @@ export function ResultRowWide({ row }: { row: RowModel }) {
           className="shrink-0 rounded border border-error px-1.5 py-0.5 text-[11px] text-error hover:bg-surface-raised"
           title={
             removeTitle ??
-            'Remove from this collection — the sound stays in your Library'
+            t('Remove from this collection — the sound stays in your Library', 'コレクションから削除します。音はライブラリに残ります。')
           }
         >
-          {removeLabel ?? 'Remove from collection'}
+          {removeLabel ?? t('Remove from collection', 'コレクションから削除')}
         </button>
       )}
 
@@ -217,9 +220,9 @@ export function ResultRowWide({ row }: { row: RowModel }) {
           <span
             role="alert"
             className="block w-full whitespace-nowrap rounded border-2 border-license-caution bg-surface-raised px-1.5 py-0.5 text-center text-[10px] font-bold uppercase tracking-wide text-license-caution"
-            title="Non-commercial license — this Sound may not be used in paid work"
+            title={t('Non-commercial license — this Sound may not be used in paid work', '非商用ライセンス。この音は有料の作品で使用できない場合があります。')}
           >
-            ⚠ Non-commercial
+            {t('⚠ Non-commercial', '⚠ 非商用')}
           </span>
         ) : (
           <LicenseChip name={sound.license.name} className="w-full" />

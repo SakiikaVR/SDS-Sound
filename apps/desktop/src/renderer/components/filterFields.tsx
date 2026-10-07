@@ -1,4 +1,5 @@
 import type { ChangeEvent, ReactNode } from 'react'
+import { t } from '../lib/locale'
 
 const CONTROL =
   'w-full rounded border border-line bg-surface px-2 py-1 text-xs text-ink focus:border-focus focus:outline-none'
@@ -74,8 +75,8 @@ export function DurationRange({
         min={0}
         step="0.1"
         inputMode="decimal"
-        placeholder="min"
-        aria-label="Minimum duration in seconds"
+        placeholder={t('min', '最小')}
+        aria-label={t('Minimum duration in seconds', '最短秒数')}
         className={CONTROL}
         value={min ?? ''}
         onChange={onMin}
@@ -88,8 +89,8 @@ export function DurationRange({
         min={0}
         step="0.1"
         inputMode="decimal"
-        placeholder="max"
-        aria-label="Maximum duration in seconds"
+        placeholder={t('max', '最大')}
+        aria-label={t('Maximum duration in seconds', '最長秒数')}
         className={CONTROL}
         value={max ?? ''}
         onChange={onMax}

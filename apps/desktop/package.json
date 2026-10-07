@@ -1,10 +1,10 @@
 {
 	"name": "@superduper/desktop",
-	"productName": "Super Duper Samples",
-	"version": "0.3.2",
+	"productName": "SDS-Sound",
+	"version": "0.1.0",
 	"private": true,
-	"description": "Super Duper Samples desktop client — Electron app (electron-vite).",
-	"author": "Super Duper Software",
+	"description": "SDS-Sound desktop client for Freesound",
+	"author": "SDS-Sound contributors; based on Super Duper Software",
 	"license": "MIT",
 	"main": "./out/main/index.js",
 	"scripts": {
@@ -37,6 +37,7 @@
 		"electron-builder": "^25.1.8",
 		"electron-vite": "^2.3.0",
 		"postcss": "^8.4.49",
+		"sharp": "0.35.2",
 		"tailwindcss": "^3.4.17",
 		"typescript": "^5.7.2",
 		"vite": "^5.4.11",

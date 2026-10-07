@@ -1,18 +1,19 @@
 import type { SearchFilter, SearchSort } from '../../preload'
+import { t } from './locale'
 
 export const SORT_OPTIONS: ReadonlyArray<{ value: SearchSort; label: string }> = [
-  { value: 'relevance', label: 'Relevance' },
-  { value: 'duration_asc', label: 'Duration (short → long)' },
-  { value: 'duration_desc', label: 'Duration (long → short)' },
-  { value: 'rating', label: 'Rating' },
-  { value: 'downloads', label: 'Downloads' },
-  { value: 'created', label: 'Date created' },
+  { value: 'relevance', label: t('Relevance', '関連度') },
+  { value: 'duration_asc', label: t('Duration (short → long)', '長さ（短い順）') },
+  { value: 'duration_desc', label: t('Duration (long → short)', '長さ（長い順）') },
+  { value: 'rating', label: t('Rating', '評価') },
+  { value: 'downloads', label: t('Downloads', 'ダウンロード数') },
+  { value: 'created', label: t('Date created', '作成日') },
 ]
 
 type License = NonNullable<SearchFilter['license']>
 
 export const LICENSE_OPTIONS: ReadonlyArray<{ value: License; label: string }> = [
-  { value: 'commercial', label: 'Usable in commercial work' },
+  { value: 'commercial', label: t('Usable in commercial work', '商用利用可') },
   { value: 'cc0', label: 'CC0 only' },
   { value: 'cc-by', label: 'CC-BY only' },
   { value: 'cc-by-nc', label: 'CC-BY-NC only' },
@@ -35,8 +36,8 @@ export const SAMPLE_RATES: readonly number[] = [
 export const BIT_DEPTHS: readonly number[] = [8, 16, 24, 32]
 
 export const CHANNEL_OPTIONS: ReadonlyArray<{ value: number; label: string }> = [
-  { value: 1, label: 'Mono' },
-  { value: 2, label: 'Stereo' },
+  { value: 1, label: t('Mono', 'モノラル') },
+  { value: 2, label: t('Stereo', 'ステレオ') },
 ]
 
 export interface FilterChip {
@@ -52,7 +53,19 @@ export function activeFilterChips(f: SearchFilter): FilterChip[] {
   if (f.durationMin != null || f.durationMax != null) {
     const lo = f.durationMin != null ? `${f.durationMin}s` : '0s'
     const hi = f.durationMax != null ? `${f.durationMax}s` : '∞'
-    chips.push({ keys: ['durationMin', 'durationMax'], label: `Duration ${lo}–${hi}` })
+    chips.push({ keys: ['durationMin', 'durationMax'], label: `${t('Duration', '長さ')} ${lo}–${hi}` })
+  }
+  if (f.bpmMin != null || f.bpmMax != null) {
+    chips.push({
+      keys: ['bpmMin', 'bpmMax'],
+      label: `BPM ${f.bpmMin ?? '…'}–${f.bpmMax ?? '…'}`,
+    })
+  }
+  if (f.tonalityKey) {
+    chips.push({
+      keys: ['tonalityKey', 'tonalityMode'],
+      label: `${f.tonalityKey} ${f.tonalityMode === 'minor' ? t('minor', 'マイナー') : t('major', 'メジャー')}`,
+    })
   }
   if (f.sampleRate != null) {
     chips.push({ keys: ['sampleRate'], label: `${f.sampleRate / 1000} kHz` })
@@ -62,7 +75,7 @@ export function activeFilterChips(f: SearchFilter): FilterChip[] {
   }
   if (f.channels != null) {
     const label =
-      f.channels === 1 ? 'Mono' : f.channels === 2 ? 'Stereo' : `${f.channels} channels`
+      f.channels === 1 ? t('Mono', 'モノラル') : f.channels === 2 ? t('Stereo', 'ステレオ') : t(`${f.channels} channels`, `${f.channels} チャンネル`)
     chips.push({ keys: ['channels'], label })
   }
   if (f.fileType) {

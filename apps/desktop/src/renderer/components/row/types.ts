@@ -14,6 +14,7 @@ export interface ResultRowProps {
   /** Row height in pixels. */
   size: number
   onSelect: (index: number) => void
+  onFindSimilar?: (sound: Sound) => void
   /**
    * `'search'` badges Sounds already in the Library and offers save-and-file.
    * `'library'` and `'collection'` show the per-row actions, a multi-select

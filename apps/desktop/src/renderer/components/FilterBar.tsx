@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import type { ChangeEvent } from 'react'
 import { useViewport } from '../lib/viewport'
+import { t } from '../lib/locale'
 import { useSearchPrefs } from '../store/useSearchPrefs'
 import type { SearchFilter } from '../../preload'
 import {
@@ -30,13 +31,13 @@ export const FilterBar = memo(function FilterBar() {
   const chips = activeFilterChips(filter)
 
   const onNum =
-    (key: 'durationMin' | 'durationMax' | 'sampleRate' | 'bitDepth' | 'channels') =>
+    (key: 'durationMin' | 'durationMax' | 'bpmMin' | 'bpmMax' | 'sampleRate' | 'bitDepth' | 'channels') =>
     (e: ChangeEvent<HTMLSelectElement | HTMLInputElement>) =>
       setFilter({ [key]: numOrUndef(e.target.value) } as Partial<SearchFilter>)
 
   const sortSelect = (
     <StyledSelect
-      aria-label="Sort results"
+      aria-label={t('Sort results', '検索結果の並び順')}
       value={sort}
       onChange={(e) => setSort(e.target.value as typeof sort)}
     >
@@ -50,7 +51,7 @@ export const FilterBar = memo(function FilterBar() {
 
   const filterFields = (
     <>
-      <Field label="Duration" wide>
+          <Field label={t('Duration', '長さ')} wide>
             <DurationRange
               min={filter.durationMin}
               max={filter.durationMax}
@@ -58,14 +59,40 @@ export const FilterBar = memo(function FilterBar() {
               onMax={onNum('durationMax')}
             />
           </Field>
+          <Field label="BPM" wide>
+            <div className="flex items-center gap-1">
+              <input type="number" min="1" max="400" aria-label={t('Minimum BPM', '最小BPM')}
+                value={filter.bpmMin ?? ''} onChange={onNum('bpmMin')}
+                className="w-full min-w-0 rounded border border-line bg-surface px-1.5 py-1 text-ink" />
+              <span>–</span>
+              <input type="number" min="1" max="400" aria-label={t('Maximum BPM', '最大BPM')}
+                value={filter.bpmMax ?? ''} onChange={onNum('bpmMax')}
+                className="w-full min-w-0 rounded border border-line bg-surface px-1.5 py-1 text-ink" />
+            </div>
+          </Field>
+          <Field label={t('Key', 'キー')} wide>
+            <div className="flex gap-1">
+              <StyledSelect aria-label={t('Key', 'キー')} value={filter.tonalityKey ?? ''}
+                onChange={(e) => setFilter({ tonalityKey: e.target.value || undefined })}>
+                <option value="">{t('Any key', 'すべてのキー')}</option>
+                {['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'].map((key) =>
+                  <option key={key} value={key}>{key}</option>)}
+              </StyledSelect>
+              <StyledSelect aria-label={t('Mode', '調性')} value={filter.tonalityMode ?? 'major'}
+                onChange={(e) => setFilter({ tonalityMode: e.target.value as 'major' | 'minor' })}>
+                <option value="major">{t('Major', 'メジャー')}</option>
+                <option value="minor">{t('Minor', 'マイナー')}</option>
+              </StyledSelect>
+            </div>
+          </Field>
 
-          <Field label="Sample rate">
+          <Field label={t('Sample rate', 'サンプルレート')}>
             <StyledSelect
-              aria-label="Sample rate"
+              aria-label={t('Sample rate', 'サンプルレート')}
               value={filter.sampleRate ?? ''}
               onChange={onNum('sampleRate')}
             >
-              <option value="">Any</option>
+              <option value="">{t('Any', 'すべて')}</option>
               {SAMPLE_RATES.map((r) => (
                 <option key={r} value={r}>
                   {r / 1000} kHz
@@ -74,13 +101,13 @@ export const FilterBar = memo(function FilterBar() {
             </StyledSelect>
           </Field>
 
-          <Field label="Bit depth">
+          <Field label={t('Bit depth', 'ビット深度')}>
             <StyledSelect
-              aria-label="Bit depth"
+              aria-label={t('Bit depth', 'ビット深度')}
               value={filter.bitDepth ?? ''}
               onChange={onNum('bitDepth')}
             >
-              <option value="">Any</option>
+              <option value="">{t('Any', 'すべて')}</option>
               {BIT_DEPTHS.map((b) => (
                 <option key={b} value={b}>
                   {b}-bit
@@ -89,13 +116,13 @@ export const FilterBar = memo(function FilterBar() {
             </StyledSelect>
           </Field>
 
-          <Field label="Channels">
+          <Field label={t('Channels', 'チャンネル')}>
             <StyledSelect
-              aria-label="Channels"
+              aria-label={t('Channels', 'チャンネル')}
               value={filter.channels ?? ''}
               onChange={onNum('channels')}
             >
-              <option value="">Any</option>
+              <option value="">{t('Any', 'すべて')}</option>
               {CHANNEL_OPTIONS.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
@@ -104,13 +131,13 @@ export const FilterBar = memo(function FilterBar() {
             </StyledSelect>
           </Field>
 
-          <Field label="File type">
+          <Field label={t('File type', 'ファイル形式')}>
             <StyledSelect
-              aria-label="File type"
+              aria-label={t('File type', 'ファイル形式')}
               value={filter.fileType ?? ''}
               onChange={(e) => setFilter({ fileType: e.target.value || undefined })}
             >
-              <option value="">Any</option>
+              <option value="">{t('Any', 'すべて')}</option>
               {FILE_TYPES.map((t) => (
                 <option key={t} value={t}>
                   {t.toUpperCase()}
@@ -119,9 +146,9 @@ export const FilterBar = memo(function FilterBar() {
             </StyledSelect>
           </Field>
 
-          <Field label="License" wide>
+          <Field label={t('License', 'ライセンス')} wide>
             <StyledSelect
-              aria-label="License"
+              aria-label={t('License', 'ライセンス')}
               value={filter.license ?? ''}
               onChange={(e) =>
                 setFilter({
@@ -129,7 +156,7 @@ export const FilterBar = memo(function FilterBar() {
                 })
               }
             >
-              <option value="">Any license</option>
+              <option value="">{t('Any license', 'すべてのライセンス')}</option>
               {LICENSE_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
@@ -154,7 +181,7 @@ export const FilterBar = memo(function FilterBar() {
       ) : (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-ink-muted">
           <label className="flex items-center gap-1.5">
-            <span>Sort</span>
+            <span>{t('Sort', '並び順')}</span>
             <span className="w-44">{sortSelect}</span>
           </label>
 
@@ -165,14 +192,14 @@ export const FilterBar = memo(function FilterBar() {
       )}
 
       {chips.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5" aria-label="Active filters">
+        <div className="flex flex-wrap items-center gap-1.5" aria-label={t('Active filters', '適用中のフィルター')}>
           {chips.map((c) => (
             <button
               key={c.keys.join(',')}
               type="button"
               onClick={() => c.keys.forEach(removeFilter)}
               className="inline-flex items-center gap-1 rounded border border-accent-2 px-1.5 py-0.5 text-[11px] text-accent-2-text hover:bg-surface-raised"
-              title="Remove this filter"
+              title={t('Remove this filter', 'このフィルターを解除')}
             >
               <span>{c.label}</span>
               <span aria-hidden>×</span>
@@ -183,7 +210,7 @@ export const FilterBar = memo(function FilterBar() {
             onClick={clearFilter}
             className="rounded border border-line px-1.5 py-0.5 text-[11px] text-ink-muted hover:border-line-strong hover:text-ink"
           >
-            Clear all
+            {t('Clear all', 'すべて解除')}
           </button>
         </div>
       )}

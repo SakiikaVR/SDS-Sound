@@ -2,6 +2,7 @@ import { AddToCollectionBar } from '../components/AddToCollectionBar'
 import { ResultList } from '../components/ResultList'
 import type { UseCollectionView } from '../hooks/useCollectionView'
 import { useViewport } from '../lib/viewport'
+import { t } from '../lib/locale'
 import type { CollectionSummary, Sound } from '../../core/types'
 
 export interface CollectionViewProps {
@@ -29,17 +30,17 @@ export function CollectionView({
 
       {collection.status === 'error' && (
         <p className="p-4 text-sm text-error" role="alert">
-          Could not read this collection.
+          {t('Could not read this collection.', 'コレクションを読み込めませんでした。')}
         </p>
       )}
 
       {collection.status === 'ok' && collection.sounds.length === 0 && (
         <div className="p-4 text-sm text-ink-muted">
           <p className="font-medium text-ink-muted">
-            “{openCollection.name}” has no sounds yet.
+            {t(`“${openCollection.name}” has no sounds yet.`, `「${openCollection.name}」にはまだ音がありません。`)}
           </p>
           <p className="mt-1">
-            Add sounds from your Library — tick rows, then “Add to collection”.
+            {t('Add sounds from your Library — tick rows, then “Add to collection”.', 'ライブラリで音を選択し、「コレクションに追加」を押してください。')}
           </p>
         </div>
       )}
@@ -54,8 +55,8 @@ export function CollectionView({
             onFocusSearch={onFocusSearch}
             variant="collection"
             onRemove={onRemove}
-            removeLabel="Remove from collection"
-            removeTitle="Remove from this collection — the sound stays in your Library"
+            removeLabel={t('Remove from collection', 'コレクションから削除')}
+            removeTitle={t('Remove from this collection — the sound stays in your Library', 'コレクションから削除します。音はライブラリに残ります。')}
             onEdit={onEdit}
             topSlot={isRail ? resultCountText : undefined}
           />

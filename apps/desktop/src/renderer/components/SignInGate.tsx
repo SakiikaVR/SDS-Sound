@@ -1,4 +1,5 @@
 import { useAuth } from '../hooks/useAuth'
+import { t } from '../lib/locale'
 
 export function SignInGate() {
   const { state, busy, signIn, error } = useAuth()
@@ -8,12 +9,12 @@ export function SignInGate() {
     <div className="flex h-full items-center justify-center p-6">
       <div className="max-w-sm text-center">
         <h2 className="text-base font-semibold text-ink">
-          Sign in to search Freesound
+          {t('Sign in to search Freesound', 'Freesoundを検索するにはログインしてください')}
         </h2>
         <p className="mt-2 text-sm text-ink-muted">
           {state.reauthRequired
-            ? 'Your Freesound session expired. Sign in again to search, download, and drag sounds out.'
-            : 'Searching, downloading, and dragging sounds out all happen as your Freesound account. Your Library and Collections stay available without signing in.'}
+            ? t('Your Freesound session expired. Sign in again to search, download, and drag sounds out.', 'Freesoundのセッションが期限切れです。検索・ダウンロード・ドラッグを再開するには再ログインしてください。')
+            : t('Searching, downloading, and dragging sounds out all happen as your Freesound account. Your Library and Collections stay available without signing in.', '検索・ダウンロード・ドラッグはFreesoundアカウントで行います。ライブラリとコレクションはログインせずに利用できます。')}
         </p>
         <button
           type="button"
@@ -22,10 +23,10 @@ export function SignInGate() {
           className="mt-4 rounded border border-accent-2 px-3 py-1.5 text-sm text-accent-2-text hover:bg-surface-raised disabled:opacity-50"
         >
           {signingIn
-            ? 'Signing in…'
+            ? t('Signing in…', 'ログイン中…')
             : state.reauthRequired
-              ? 'Sign in again'
-              : 'Sign in with Freesound'}
+              ? t('Sign in again', '再ログイン')
+              : t('Sign in with Freesound', 'Freesoundでログイン')}
         </button>
         {error && (
           <p className="mt-3 text-xs text-error" role="alert">

@@ -41,6 +41,14 @@ export function matchesLibraryFilter(
     return false
   if (filter.durationMax != null && sound.duration > filter.durationMax)
     return false
+  if (filter.bpmMin != null && (sound.bpm == null || sound.bpm < filter.bpmMin))
+    return false
+  if (filter.bpmMax != null && (sound.bpm == null || sound.bpm > filter.bpmMax))
+    return false
+  if (filter.tonalityKey) {
+    const expected = `${filter.tonalityKey} ${filter.tonalityMode ?? 'major'}`
+    if (sound.tonality?.toLowerCase() !== expected.toLowerCase()) return false
+  }
 
   if (filter.fileType) {
     if (sound.type.toLowerCase() !== filter.fileType.toLowerCase()) return false
@@ -90,6 +98,9 @@ export function hasLibraryFilter(filter: LibraryFilter | undefined): boolean {
     filter.license != null ||
     filter.durationMin != null ||
     filter.durationMax != null ||
+    filter.bpmMin != null ||
+    filter.bpmMax != null ||
+    !!filter.tonalityKey ||
     (filter.fileType != null && filter.fileType !== '') ||
     (filter.text != null && filter.text.trim() !== '')
   )
@@ -109,6 +120,10 @@ export function normaliseLibraryFilter(
   if (filter.license) out.license = filter.license
   if (filter.durationMin != null) out.durationMin = filter.durationMin
   if (filter.durationMax != null) out.durationMax = filter.durationMax
+  if (filter.bpmMin != null) out.bpmMin = filter.bpmMin
+  if (filter.bpmMax != null) out.bpmMax = filter.bpmMax
+  if (filter.tonalityKey) out.tonalityKey = filter.tonalityKey
+  if (filter.tonalityMode) out.tonalityMode = filter.tonalityMode
   if (filter.fileType) out.fileType = filter.fileType
   if (filter.text != null && filter.text.trim() !== '')
     out.text = filter.text.trim()

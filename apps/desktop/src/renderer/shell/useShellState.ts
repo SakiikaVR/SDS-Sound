@@ -21,8 +21,6 @@ export interface ShellState {
   closeEdit: () => void
   showManifest: boolean
   setShowManifest: (v: boolean) => void
-  showSupport: boolean
-  setShowSupport: (v: boolean) => void
   /** False until the persisted shell state has been read; gates the first search. */
   uiReady: boolean
   /** The row to re-select once the active list contains it. See `useRestoreSelection`. */
@@ -42,7 +40,6 @@ export function useShellState(): ShellState {
     useState<CollectionSummary | null>(null)
   const [editingSound, setEditingSound] = useState<Sound | null>(null)
   const [showManifest, setShowManifest] = useState(false)
-  const [showSupport, setShowSupport] = useState(false)
   const [uiReady, setUiReady] = useState(false)
   const [pendingSelectedSoundId, setPendingSelectedSoundId] = useState<
     number | null
@@ -83,15 +80,11 @@ export function useShellState(): ShellState {
 
   useEffect(() => {
     let cancelled = false
-    void Promise.all([
-      window.core.getUiState(),
-      window.core.getLaunchCount().catch(() => 0),
-    ])
-      .then(([s, launchCount]) => {
+    void window.core.getUiState()
+      .then((s) => {
         if (cancelled) return
         if (s.view && s.view !== 'edit') setView(s.view as View)
         if (typeof s.query === 'string') setQuery(s.query)
-        if (!s.supportPromptDismissed && launchCount >= 2) setShowSupport(true)
         setPendingSelectedSoundId(s.selectedSoundId ?? null)
         restore.current = {
           openCollectionId: s.openCollectionId ?? null,
@@ -173,8 +166,6 @@ export function useShellState(): ShellState {
     closeEdit,
     showManifest,
     setShowManifest,
-    showSupport,
-    setShowSupport,
     uiReady,
     pendingSelectedSoundId,
     clearPendingSelection,

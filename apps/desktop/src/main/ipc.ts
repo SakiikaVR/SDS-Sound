@@ -4,17 +4,6 @@ import { join } from 'node:path'
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import type { Core } from '../core'
 
-const SUPPORT_PAGE = 'https://ko-fi.com/sparlos'
-const SUPPORT_EMAIL = 'info@superdupersoftware.net'
-
-function mailtoUrl(opts?: { subject?: string; body?: string }): string {
-  const parts: string[] = []
-  if (opts?.subject) parts.push(`subject=${encodeURIComponent(opts.subject)}`)
-  if (opts?.body) parts.push(`body=${encodeURIComponent(opts.body)}`)
-  const query = parts.join('&')
-  return `mailto:${SUPPORT_EMAIL}${query ? `?${query}` : ''}`
-}
-
 /**
  * The IPC surface. `core:invoke` forwards any `Core` command verbatim; the
  * named channels are the handful of things the core cannot do for itself
@@ -35,18 +24,26 @@ export function registerIpc(core: Core): void {
     if (url) return shell.openExternal(url)
   })
 
-  ipcMain.handle('core:openSupportPage', () => shell.openExternal(SUPPORT_PAGE))
-
-  ipcMain.handle(
-    'core:openSupportEmail',
-    (_event, opts?: { subject?: string; body?: string }) =>
-      shell.openExternal(mailtoUrl(opts)),
-  )
-
   ipcMain.handle('core:showLogs', () => {
     const path = core.getLogPath()
     if (path && existsSync(path)) shell.showItemInFolder(path)
     else void shell.openPath(join(app.getPath('userData'), 'logs'))
+  })
+
+  ipcMain.handle('core:importLocalFiles', async () => {
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0]
+    const options = {
+      properties: ['openFile', 'multiSelections'] as Array<'openFile' | 'multiSelections'>,
+      filters: [{ name: 'Audio', extensions: ['wav', 'aiff', 'aif', 'flac', 'mp3', 'ogg', 'm4a'] }],
+    }
+    const result = await (win ? dialog.showOpenDialog(win, options) : dialog.showOpenDialog(options))
+    if (result.canceled) return []
+    const imported: number[] = []
+    for (const filePath of result.filePaths) {
+      const { soundId } = await core.importLocalFile(filePath)
+      imported.push(soundId)
+    }
+    return imported
   })
 
   ipcMain.handle(

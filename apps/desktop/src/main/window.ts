@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { BrowserWindow, screen } from 'electron'
+import { resolveWindowIconPath } from './paths'
 import {
   MIN_WINDOW_HEIGHT,
   MIN_WINDOW_WIDTH,
@@ -55,6 +56,7 @@ export function createWindow(core: Core): void {
   const bounds = usableBounds(core.getUiState().window)
 
   const win = new BrowserWindow({
+    icon: resolveWindowIconPath(),
     width: bounds.width,
     height: bounds.height,
     minWidth: MIN_WINDOW_WIDTH,
@@ -74,6 +76,9 @@ export function createWindow(core: Core): void {
 
   if (bounds.maximized) win.maximize()
   win.once('ready-to-show', () => win.show())
+  win.webContents.once('did-finish-load', () => {
+    if (!win.isDestroyed() && !win.isVisible()) win.show()
+  })
 
   const devUrl = process.env['ELECTRON_RENDERER_URL']
 

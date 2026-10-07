@@ -1,100 +1,40 @@
-# Setup — running against the real Freesound
+# SDS-Sound のFreesound接続設定
 
-Nothing here is needed to run the test suites (`pnpm -r test`). It is what you do
-to point the app at a live Freesound account.
+Freesoundにログインするため、SDS-Sound専用のAPIアプリとOAuthトークン交換用Workerが必要です。Client Secretはデスクトップアプリに入れません。
 
-The app bundles **no** API key. Every Freesound call, search included, is made with
-the signed-in user's OAuth2 token, so nothing works until sign-in works,
-and sign-in needs your own token-exchange Worker deployed.
+## 1. FreesoundでAPIアプリを登録
 
-## 1. Register a Freesound API application
+[Freesound API申請ページ](https://freesound.org/apiv2/apply/)にFreesoundアカウントでログインし、SDS-Sound用アプリを作成します。Redirect URIは `http://localhost:8910/callback` にします。発行されたClient IDとClient Secretを控えます。Client IDは公開可能な識別子、Client Secretは秘密情報です。ログイン操作とAPIアプリの発行はアカウント所有者が行います。
 
-Go to <https://freesound.org/apiv2/apply/> and create an application.
+Freesoundの[API利用規約](https://freesound.org/help/tos_api/)はアプリごとのアクセスキーを求めています。元アプリの認証情報をSDS-Soundの公開ビルドに流用しません。
 
-| Field | Value |
-|---|---|
-| **Redirect URI** | `http://localhost:8910/callback` — exactly this, one only. Freesound allows a single redirect URI per credential; the app's loopback listener is hard-coded to port 8910. |
-| Grant | Authorization Code (Freesound does **not** support PKCE) |
+## 2. OAuth Workerをデプロイ
 
-You get two values:
+Cloudflareアカウントにログインして、リポジトリの `worker/` をデプロイします。`worker/wrangler.toml` の公開Client IDをSDS-Sound用に設定し、Client SecretはCloudflareのSecretとして登録します。
 
-- **Client ID** → `apps/desktop/.env` as `FREESOUND_CLIENT_ID`, **and** `worker/wrangler.toml` `[vars]` (or the Worker's `.dev.vars` / CI). Public.
-- **Client Secret** → **only** ever the Cloudflare Worker, set with `wrangler secret put`. Never in the desktop app, never committed.
-
-## 2. Know the rate-limit question
-
-Freesound's documented limits are **60 req/min and 2000 req/day**. The docs do not say
-whether they are counted **per `client_id`** or **per user access token**. Since search
-now spends against this budget too, confirm with the Freesound admins before relying on
-it at any scale:
-
-- Per user token → fine.
-- Per `client_id` → every user of your build shares one 2000/day budget.
-
-## 3. Deploy the token Worker
-
-Needs a Cloudflare account. From `worker/`:
-
-```
-wrangler login                       # or export CLOUDFLARE_API_TOKEN
-# set FREESOUND_CLIENT_ID in wrangler.toml [vars] (or .dev.vars / CI)
+```powershell
+pnpm install --frozen-lockfile
 pnpm --filter @superduper/token-worker exec wrangler secret put FREESOUND_CLIENT_SECRET
 pnpm --filter @superduper/token-worker exec wrangler deploy
 ```
 
-Copy the printed `https://…workers.dev` URL. Operational hardening, rotation and
-local dev (`.dev.vars` + `wrangler dev`) are in `worker/README.md` and
-`worker/SECURITY.md`.
+必要なCloudflare設定は[worker/README.md](worker/README.md)と[worker/SECURITY.md](worker/SECURITY.md)を参照してください。デプロイ後にWorker URLを控えます。
 
-Optional: to record an anonymous monthly-active-user count, also
-`wrangler secret put MAU_HASH_SALT` (any random string) and redeploy — see
-`worker/README.md` § "Monthly active users". Skip it and nothing is recorded.
+## 3. ビルド
 
-## 4. Fill in `apps/desktop/.env`
+`apps/desktop/.env.example` を `apps/desktop/.env` にコピーします。次の2項目にSDS-Sound用の値を入れます。`.env` はGit管理対象外です。
 
-`cp apps/desktop/.env.example apps/desktop/.env`, then:
-
-```
-FREESOUND_CLIENT_ID=<client id from step 1>
-FREESOUND_TOKEN_WORKER_URL=<deployed Worker URL from step 3>
-# no FREESOUND_CLIENT_SECRET here — it lives only in the Worker
-# SDS_TELEMETRY=0   # optional: opt out of the anonymous MAU install-id ping
+```dotenv
+FREESOUND_CLIENT_ID=YOUR_SDS_SOUND_CLIENT_ID
+FREESOUND_TOKEN_WORKER_URL=https://YOUR_WORKER.workers.dev
 ```
 
-## 5. Native module note
-
-`apps/desktop` uses `better-sqlite3` (native). It installs a prebuilt binary for your
-Node; if you switch Node major versions you'll need `pnpm rebuild better-sqlite3`. A
-packaged build rebuilds it against Electron's ABI via `@electron/rebuild`
-(`npmRebuild: true` in `electron-builder.yml`).
-
-## 6. Try the app
-
-```
-pnpm install
-pnpm --filter @superduper/desktop dev
+```powershell
+pnpm --filter @superduper/desktop pack:win
 ```
 
-Search, sign-in and staged downloads all need steps 1, 3 and 4 done and the Worker
-deployed. Drag-out into a DAW cannot be exercised by the test suite — verify it by
-hand against the running app.
+ビルドしたアプリの「Freesoundでログイン」を押すと、システムブラウザーが開きます。Freesoundのアカウント認証情報やClient Secretをこのリポジトリ、GitHub Actionsの公開変数、デスクトップアプリに入力しないでください。
 
-## 7. Building a release (unsigned)
+## 公開版
 
-Full detail is in `apps/desktop/README.md` § "Building a release".
-The essentials:
-
-- **Deploy the Worker** (step 3). A released build with no Worker URL cannot sign in,
-  so Search is dead.
-- **Bake the client config into the build.** `pack:mac` / `pack:win` read
-  `apps/desktop/.env` at build time, so `FREESOUND_CLIENT_ID` and
-  `FREESOUND_TOKEN_WORKER_URL` must be set (the client id is safe to ship).
-  In CI they come from GitHub Actions repository **variables** of the same names, not
-  secrets.
-- **Cut a release** by pushing a `v*` tag; `.github/workflows/release.yml` builds the
-  two DMGs + the NSIS installer and opens a **draft** GitHub Release with
-  `SHA256SUMS.txt`. Review, then publish.
-- **Before announcing**, install each artifact on a clean machine, walk `INSTALL.md`,
-  and re-check drag-out against the installed app.
-- The builds are **unsigned** (macOS ad-hoc only, Windows not at all) and there is **no
-  auto-update**. Rolling back a bad release = delete the release and its tag.
+公開リリースでは、専用Client IDとWorker URLをGitHub Actionsのリポジトリ変数に登録します。WorkerのClient SecretはCloudflareのSecretにだけ登録します。公開ビルドのClient IDとWorker URLは解析可能な値として扱ってください。

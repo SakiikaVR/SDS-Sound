@@ -138,7 +138,7 @@ const m002: Migration = {
  *
  * Every time an Original is fetched from Freesound it is recorded here, one row
  * per download, with the epoch-ms instant it completed. Freesound caps a user at
- * 2,000 Original downloads per rolling 24 h; the app counts the rows newer than
+ * 500 Original downloads per rolling 24 h; the app counts the rows newer than
  * `now - 24h` to show "N downloads left". Rows are never pruned here (a cheap
  * background sweep can trim them later); the count query is bounded by the
  * `downloaded_at` index.
@@ -198,5 +198,15 @@ const m005: Migration = {
   `,
 }
 
+/** Store Freesound's estimated tempo and tonality alongside each sound. */
+const m006: Migration = {
+  id: 6,
+  name: 'sound-bpm-tonality',
+  up: /* sql */ `
+    ALTER TABLE sounds ADD COLUMN bpm REAL;
+    ALTER TABLE sounds ADD COLUMN tonality TEXT;
+  `,
+}
+
 /** The migration list, in application order. Append only. */
-export const MIGRATIONS: readonly Migration[] = [m001, m002, m003, m004, m005]
+export const MIGRATIONS: readonly Migration[] = [m001, m002, m003, m004, m005, m006]

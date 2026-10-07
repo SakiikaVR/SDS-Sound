@@ -41,6 +41,13 @@ describe('freesoundFilterString', () => {
     expect(freesoundFilterString({ durationMax: 30 })).toBe('duration:[* TO 30]')
   })
 
+  it('uses the current Freesound bpm and tonality descriptors', () => {
+    expect(freesoundFilterString({ bpmMin: 118, bpmMax: 122, tonalityKey: 'F#', tonalityMode: 'minor' }))
+      .toBe('bpm:[118 TO 122] tonality:"F# minor"')
+    expect(freesoundFilterString({ bpmMax: 90, tonalityKey: 'C' }))
+      .toBe('bpm:[* TO 90] tonality:"C major"')
+  })
+
   it('translates each technical dimension to its Freesound field name', () => {
     expect(freesoundFilterString({ sampleRate: 44100 })).toBe('samplerate:44100')
     expect(freesoundFilterString({ bitDepth: 24 })).toBe('bitdepth:24')
@@ -126,6 +133,8 @@ describe('HttpFreesoundGateway — sort + filter on the query string', () => {
 describe('core.search — each filter dimension reaches the gateway', () => {
   const cases: Array<[string, SearchFilter]> = [
     ['duration range', { durationMin: 0.5, durationMax: 3 }],
+    ['BPM range', { bpmMin: 118, bpmMax: 122 }],
+    ['tonality', { tonalityKey: 'C', tonalityMode: 'minor' }],
     ['sample rate', { sampleRate: 44100 }],
     ['bit depth', { bitDepth: 24 }],
     ['channel count', { channels: 2 }],

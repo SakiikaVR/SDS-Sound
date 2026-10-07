@@ -81,6 +81,7 @@ export function createSearchService({
     pageSize: number,
     sort: SearchSort | undefined,
     filter: SearchFilter | undefined,
+    similarTo: number | undefined,
     ck: ReturnType<typeof cacheKey>,
     allowPrefetch: boolean,
   ): Promise<SearchResult> {
@@ -90,6 +91,7 @@ export function createSearchService({
         gateway.search(
           {
             query: query.trim(),
+            ...(similarTo ? { similarTo } : {}),
             page,
             pageSize,
             ...(sort ? { sort } : {}),
@@ -126,7 +128,7 @@ export function createSearchService({
     })
 
     if (allowPrefetch && hasMore) {
-      prefetchNextPage(query, page, pageSize, sort, filter)
+      prefetchNextPage(query, page, pageSize, sort, filter, similarTo)
     }
 
     return { query, totalCount: raw.count, page, pageSize, sounds, hasMore }
@@ -141,9 +143,10 @@ export function createSearchService({
     const pageSize = opts?.pageSize ?? DEFAULT_PAGE_SIZE
     const sort = normalizeSort(opts?.sort)
     const filter = normalizeFilter(opts?.filter)
+    const similarTo = opts?.similarTo && opts.similarTo > 0 ? opts.similarTo : undefined
     const trimmed = query.trim()
 
-    if (trimmed === '') {
+    if (trimmed === '' && !similarTo) {
       return Promise.resolve({
         query,
         totalCount: 0,
@@ -160,6 +163,7 @@ export function createSearchService({
 
     const params: SearchCacheParams = {
       query: trimmed,
+      similarTo,
       page,
       pageSize,
       sort,
@@ -179,6 +183,7 @@ export function createSearchService({
       pageSize,
       sort,
       filter,
+      similarTo,
       ck,
       allowPrefetch,
     ).finally(() => {
@@ -194,9 +199,11 @@ export function createSearchService({
     pageSize: number,
     sort: SearchSort | undefined,
     filter: SearchFilter | undefined,
+    similarTo: number | undefined,
   ): void {
     const { key } = cacheKey({
       query: query.trim(),
+      similarTo,
       page: page + 1,
       pageSize,
       sort,
@@ -205,7 +212,7 @@ export function createSearchService({
     if (inFlight.has(key) || readSearchCache(db, key)) return
     void runSearch(
       query,
-      { page: page + 1, pageSize, sort, filter },
+      { page: page + 1, pageSize, sort, filter, similarTo },
       false,
     ).catch(() => {})
   }
