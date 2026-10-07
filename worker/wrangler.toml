@@ -1,4 +1,4 @@
-name = "freesound-token-worker"
+name = "sds-sound-oauth-worker"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 workers_dev = true
@@ -6,6 +6,7 @@ keep_vars=true
 
 # --- Public config -----------------------------------------------------------
 [vars]
+FREESOUND_CLIENT_ID = ""
 
 # Optional, soft abuse controls. Leave empty to disable.
 #   ALLOWED_ORIGINS      comma-separated Origin header values to allow
@@ -24,19 +25,6 @@ RATE_LIMIT_PER_MINUTE = "30"
 name = "SAMPLES_RATE_LIMITER"
 namespace_id = "1002"
 simple = { limit = 120, period = 60 }
-
-# --- Anonymous monthly-active-user count ------------------------------------
-# Write-only telemetry, not request-serving state: one data point per token
-# exchange/refresh, keyed by a salted SHA-256 of the client's random install id.
-# No id, no row. See README.md "Monthly active users". Comment the block out to
-# disable recording entirely.
-[[analytics_engine_datasets]]
-binding = "MAU_ANALYTICS"
-dataset = "freesound_token_worker_mau"
-
-# MAU_HASH_SALT is a Worker secret, not a [vars] entry:
-#   wrangler secret put MAU_HASH_SALT
-# Any non-empty random string. Rotating it resets the distinct-id count.
 
 # --- Anonymous error-category counts --------------------------------------
 # Write-only telemetry for POST /report: one data point per (event, version,
