@@ -13,16 +13,31 @@
 
 ## ログイン方法
 
-以下はSDS-Soundを実際に起動して撮影した画面です。入力欄は空の状態で撮影しており、Secretは写っていません。
+以下はSDS-Soundを実際に起動して撮影した画面です。認証情報を入力せずに撮影しています。
 
-| ① 初回設定画面（ダークモード） | ② ログイン画面（ライトモード） |
+### 1. FreesoundのAPIアプリを登録
+
+初回起動時に出る「Freesound 接続設定」で登録ページのリンクを開き、**自分のFreesoundアカウント**でAPIアプリを登録します。登録ページには次の値を入れます。
+
+| 登録ページの欄 | 入力する値 |
 | --- | --- |
-| ![SDS-Soundのダークモード](docs/screenshots/dark.png) | ![SDS-Soundのライトモード](docs/screenshots/light.png) |
+| Name | `SDS-Sound` |
+| URL | `https://github.com/SakiikaVR/SDS-Sound` |
+| Callback URL | `http://localhost:8910/callback` |
 
-1. 初回起動時の接続設定画面からFreesoundの登録ページを開きます。Nameは `SDS-Sound`、URLは `https://github.com/SakiikaVR/SDS-Sound`、Callback URLは `http://localhost:8910/callback` にします。
-2. Freesoundが発行した **Client ID** を上の入力欄、**Client Secret** を下の入力欄に入れ、「保存して再起動」を押します。Freesoundのパスワードは入力しません。
-3. 再起動後、「ログイン」または「Freesoundでログイン」を押します。既定ブラウザーでFreesoundが開いたら許可します。
-4. アプリに戻ると検索・試聴・ダウンロードを使えます。Secretは端末内に暗号化保存されます。設定を変える場合は右上の「その他」→「Freesound 接続設定」を開きます。
+![初回起動時のFreesound接続設定。登録リンク、登録する値、Client IDとClient Secretの入力欄が表示される](docs/screenshots/dark.png)
+
+### 2. 発行された値をアプリに入力
+
+Freesoundが発行した **Client ID** を画面上の「Client ID」欄、**Client Secret** をその下の「Client Secret」欄に入れ、「保存して再起動」を押します。Freesoundのログインパスワードは入力しません。Secretは端末内で暗号化保存されます。
+
+### 3. ログインボタンを押す
+
+再起動後、画面右上の「ログイン」または中央の「Freesoundでログイン」を押します。既定のブラウザーでFreesoundの認証ページが開いたら、ログインしてアクセスを許可します。完了するとアプリに戻り、検索・試聴・ダウンロードを使えます。
+
+![設定後の検索画面。右上と中央にFreesoundログインボタンが表示される](docs/screenshots/light.png)
+
+設定を変更する場合は右上の「その他」→「Freesound 接続設定」を開きます。Client Secretを公開リポジトリやスクリーンショットに載せないでください。詳しくは[接続設定](SETUP.md)を参照してください。
 
 ## 主な機能
 
