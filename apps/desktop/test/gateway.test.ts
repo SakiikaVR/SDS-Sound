@@ -352,4 +352,33 @@ describe('HttpFreesoundGateway — token Worker (ticket 07)', () => {
       /FREESOUND_TOKEN_WORKER_URL/,
     )
   })
+
+  it('exchanges and refreshes through Freesound with the user-owned credential', async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse(200, {
+      access_token: 'AT', refresh_token: 'RT', expires_in: 3600,
+    })) as unknown as typeof fetch
+    const gateway = new HttpFreesoundGateway({
+      clientId: 'user-client-id',
+      clientSecret: 'user-client-secret',
+      fetchImpl,
+    })
+    await gateway.exchangeToken('CODE', 'http://localhost:8910/callback')
+    await gateway.refreshToken('RT')
+    const calls = (fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls
+    expect(String(calls[0][0])).toBe('https://freesound.org/apiv2/oauth2/access_token/')
+    expect(new URLSearchParams(calls[0][1].body).get('client_secret')).toBe('user-client-secret')
+    expect(new URLSearchParams(calls[0][1].body).get('code')).toBe('CODE')
+    expect(new URLSearchParams(calls[1][1].body).get('grant_type')).toBe('refresh_token')
+    expect(new URLSearchParams(calls[1][1].body).get('refresh_token')).toBe('RT')
+  })
+
+  it('does not expose a local Client Secret in token errors', async () => {
+    const gateway = new HttpFreesoundGateway({
+      clientId: 'user-client-id', clientSecret: 'private-secret',
+      fetchImpl: (async () => jsonResponse(401, { detail: 'private-secret' })) as typeof fetch,
+    })
+    const error = await gateway.exchangeToken('CODE', 'callback').catch((reason: unknown) => reason)
+    expect(error).toBeInstanceOf(ReauthRequiredError)
+    expect(JSON.stringify(error)).not.toContain('private-secret')
+  })
 })

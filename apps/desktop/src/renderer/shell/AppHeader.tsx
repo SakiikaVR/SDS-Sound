@@ -22,6 +22,7 @@ export interface AppHeaderProps {
   onSignOut: () => void
   onOpenShortcuts: () => void
   onOpenLogs: () => void
+  onOpenCredentials: () => void
   /** The live "N results" / "N sounds" readout, or `null` when there is nothing to count. */
   resultCountText: string | null
   /** View-specific second row: the search field, Library sort, Collection breadcrumb. */
@@ -49,6 +50,7 @@ export function AppHeader({
   onSignOut,
   onOpenShortcuts,
   onOpenLogs,
+  onOpenCredentials,
   resultCountText,
   contextBar,
 }: AppHeaderProps) {
@@ -56,6 +58,7 @@ export function AppHeader({
   const theme = useTheme()
 
   const menuItems: OverflowMenuItem[] = [
+    { label: t('Freesound connection settings', 'Freesound 接続設定'), onSelect: onOpenCredentials },
     ...(authed ? [{ label: t('Sign out', 'ログアウト'), onSelect: onSignOut }] : []),
     { label: t('Keyboard shortcuts', 'キーボードショートカット'), onSelect: onOpenShortcuts },
     { label: t('View logs', 'ログを表示'), onSelect: onOpenLogs },

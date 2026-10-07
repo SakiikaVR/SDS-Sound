@@ -8,6 +8,7 @@ import { NotificationHost } from './components/NotificationHost'
 import { RebuildBanner } from './components/RebuildBanner'
 import { ShortcutsDialog } from './components/ShortcutsDialog'
 import { TransportBar } from './components/TransportBar'
+import { FreesoundCredentialsDialog } from './components/FreesoundCredentialsDialog'
 import { AppHeader } from './shell/AppHeader'
 import { ContextBar } from './shell/ContextBar'
 import { useRestoreSelection, useShellState } from './shell/useShellState'
@@ -35,6 +36,8 @@ export default function App() {
   const shell = useShellState()
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [showLogs, setShowLogs] = useState(false)
+  const [showCredentials, setShowCredentials] = useState(false)
+  const [existingClientId, setExistingClientId] = useState('')
   const [similarSound, setSimilarSound] = useState<Sound | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -47,6 +50,18 @@ export default function App() {
     useSearchPrefs.getState().load()
     useLibraryFilter.getState().load()
     void useCollections.getState().load()
+  }, [])
+
+  useEffect(() => {
+    let alive = true
+    void window.core.getCredentialsStatus().then((status) => {
+      if (!alive) return
+      setExistingClientId(status.clientId)
+      if (!status.configured) setShowCredentials(true)
+    })
+    const open = () => setShowCredentials(true)
+    window.addEventListener('sds-open-credentials', open)
+    return () => { alive = false; window.removeEventListener('sds-open-credentials', open) }
   }, [])
 
   const auth = useAuth()
@@ -153,6 +168,7 @@ export default function App() {
         onSignOut={auth.signOut}
         onOpenShortcuts={() => setShowShortcuts(true)}
         onOpenLogs={() => setShowLogs(true)}
+        onOpenCredentials={() => setShowCredentials(true)}
         resultCountText={resultCountText}
         contextBar={
           <ContextBar
@@ -238,6 +254,7 @@ export default function App() {
         />
       )}
       {showLogs && <LogViewerDialog onClose={() => setShowLogs(false)} />}
+      {showCredentials && <FreesoundCredentialsDialog existingClientId={existingClientId} onClose={() => setShowCredentials(false)} />}
       {shell.view === 'edit' && shell.editingSound && (
         <EditView sound={shell.editingSound} onClose={shell.closeEdit} />
       )}

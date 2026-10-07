@@ -1,7 +1,7 @@
 import { renameSync } from 'node:fs'
 import { release } from 'node:os'
 import { join } from 'node:path'
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import {
   assessStartup,
   createCore,
@@ -17,11 +17,10 @@ import { HttpFreesoundGateway } from '../core/gateway/http'
 import { CHANNELS } from '../shared/channels'
 import { createElectronAuthPlatform } from './authPlatform'
 import { createElectronDragHost } from './dragHost'
-import { getOrCreateInstallId } from './installId'
 import { createErrorTelemetry } from './errorTelemetry'
 import { createFfmpegAudioRenderRunner } from './ffmpegRunner'
 import { broadcaster } from './broadcast'
-import { loadConfig } from './config'
+import { loadOAuthCredentials, saveOAuthCredentials } from './credentialStore'
 import { registerIpc } from './ipc'
 import { resolveDragIconPath, resolveFfmpegPath } from './paths'
 import { registerWillQuitHandler } from './quit'
@@ -30,8 +29,8 @@ import { installApplicationMenu, syncApplicationMenuFromWindow } from './applica
 
 void app.whenReady().then(() => {
   installApplicationMenu(app.getLocale().toLowerCase().startsWith('ja') ? 'ja' : 'en')
-  const config = loadConfig()
   const dataDir = app.getPath('userData')
+  const credentials = loadOAuthCredentials(dataDir)
   const dbPath = join(dataDir, 'library.db')
 
   const startup = assessStartup({ dbPath, dataDir })
@@ -47,13 +46,9 @@ void app.whenReady().then(() => {
   const dragIconFallbackPath = resolveDragIconPath()
   const ffmpegPath = resolveFfmpegPath()
 
-  const installId = config.telemetryEnabled
-    ? getOrCreateInstallId(dataDir)
-    : undefined
-
   const errorTelemetry = createErrorTelemetry({
-    reportUrl: config.tokenWorkerUrl,
-    enabled: config.telemetryEnabled,
+    reportUrl: '',
+    enabled: false,
     context: {
       version: app.getVersion(),
       platform: process.platform,
@@ -64,8 +59,8 @@ void app.whenReady().then(() => {
 
   const core = createCore({
     gateway: new HttpFreesoundGateway({
-      tokenWorkerUrl: config.tokenWorkerUrl,
-      installId,
+      clientId: credentials?.clientId,
+      clientSecret: credentials?.clientSecret,
     }),
     dataDir,
     dbPath,
@@ -73,7 +68,7 @@ void app.whenReady().then(() => {
     telemetry: errorTelemetry,
     authPlatform: createElectronAuthPlatform(),
     scheduler: createRealScheduler(),
-    clientId: config.freesoundClientId,
+    clientId: credentials?.clientId ?? '',
     onAuthStateChange: broadcaster<AuthState>(CHANNELS.authState),
     onStagingStatusChange: broadcaster<StagingStatusChange>(
       CHANNELS.stagingStatus,
@@ -94,6 +89,17 @@ void app.whenReady().then(() => {
   })
 
   registerIpc(core)
+  ipcMain.handle('credentials:status', () => ({
+    configured: credentials !== null,
+    clientId: credentials?.clientId ?? '',
+  }))
+  ipcMain.handle('credentials:save', async (_event, clientId: string, clientSecret: string) => {
+    saveOAuthCredentials(dataDir, clientId, clientSecret)
+    await core.signOut()
+    app.relaunch()
+    app.quit()
+  })
+  ipcMain.handle('credentials:openRegistration', () => shell.openExternal('https://freesound.org/apiv2/apply/'))
 
   app.on('browser-window-created', (_e, win) => {
     win.webContents.on('did-finish-load', () => {

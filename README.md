@@ -2,7 +2,7 @@
 
 # SDS-Sound
 
-日本語で使える、Freesound対応の無料デスクトップサンプルブラウザー。Windows向けインストーラーを配布し、コードは公開しています。[Super Duper Core](https://github.com/Super-Duper-Software/super-duper-core)（MIT）を基に開発した非公式フォークです。
+日本語で使える、Freesound対応の無料デスクトップサンプルブラウザー。Windows向けインストーラーを配布し、コードを公開しています。[Super Duper Core](https://github.com/Super-Duper-Software/super-duper-core)（MIT）を基に開発した非公式フォークです。
 
 <p>
   <a href="https://github.com/SakiikaVR/SDS-Sound/releases/latest"><img src="https://img.shields.io/badge/Windows-ダウンロード-00A6B5?style=for-the-badge" alt="Windows版をダウンロード"></a>
@@ -11,13 +11,18 @@
 
 [導入方法](INSTALL.md) · [接続設定](SETUP.md) · [ライセンス](THIRD_PARTY_NOTICES.md)
 
-## 画面
+## ログイン方法
 
-以下は開発版を実際に起動して撮影したログイン前の画面です。検索結果や音声データの合成画像ではありません。
+以下はSDS-Soundを実際に起動して撮影した画面です。入力欄は空の状態で撮影しており、Secretは写っていません。
 
-| ダークモード | ライトモード |
+| ① 初回設定画面（ダークモード） | ② ログイン画面（ライトモード） |
 | --- | --- |
 | ![SDS-Soundのダークモード](docs/screenshots/dark.png) | ![SDS-Soundのライトモード](docs/screenshots/light.png) |
+
+1. 初回起動時の接続設定画面からFreesoundの登録ページを開きます。Nameは `SDS-Sound`、URLは `https://github.com/SakiikaVR/SDS-Sound`、Callback URLは `http://localhost:8910/callback` にします。
+2. Freesoundが発行した **Client ID** を上の入力欄、**Client Secret** を下の入力欄に入れ、「保存して再起動」を押します。Freesoundのパスワードは入力しません。
+3. 再起動後、「ログイン」または「Freesoundでログイン」を押します。既定ブラウザーでFreesoundが開いたら許可します。
+4. アプリに戻ると検索・試聴・ダウンロードを使えます。Secretは端末内に暗号化保存されます。設定を変える場合は右上の「その他」→「Freesound 接続設定」を開きます。
 
 ## 主な機能
 
@@ -36,11 +41,11 @@
 
 Windows 10/11 x64。リリースページの `SDS-Sound-Setup-0.1.0.exe` をダウンロードして実行します。現時点でコード署名はありません。詳細は[INSTALL.md](INSTALL.md)を参照してください。macOS向けソースコードも含みますが、このリリースで配布・検証するのはWindows版です。
 
-Freesound検索にはFreesoundアカウントと、SDS-Sound専用のAPI登録・OAuth Worker設定が必要です。配布用の認証情報が準備できるまで、公開版のログインは未提供です。ローカルライブラリはログインなしで使えます。[SETUP.md](SETUP.md)に設定手順があります。
+Freesound検索には各利用者のFreesoundアカウントとAPIアプリ登録が必要です。接続設定はアプリ内で行い、Cloudflareなどの外部サーバーは不要です。ローカルライブラリはログインなしで使えます。詳しくは[接続設定](SETUP.md)を参照してください。
 
 ## ソースからビルド
 
-Node.js 24 と pnpm を用意します。`apps/desktop/.env.example` を `apps/desktop/.env` にコピーし、SDS-Sound専用のClient IDとWorker URLを設定します。Client Secretはデスクトップアプリに置かず、WorkerのSecretとして登録します。
+Node.js 24 と pnpm を用意します。ビルド時に認証情報は必要ありません。各利用者が初回起動時に自分のClient IDとSecretを設定します。
 
 ```powershell
 pnpm install --frozen-lockfile

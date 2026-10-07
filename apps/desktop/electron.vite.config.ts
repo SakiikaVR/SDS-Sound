@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    envPrefix: ['MAIN_VITE_', 'FREESOUND_'],
     plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {

@@ -45,6 +45,8 @@ extraResources:
     to: licenses/FFmpeg-GPL-3.0.txt
   - from: ../../third_party/ffmpeg/BUILD-INFO.txt
     to: licenses/FFmpeg-BUILD-INFO.txt
+  - from: ../../third_party/better-sqlite3/LICENSE
+    to: licenses/better-sqlite3-MIT.txt
 
 # Native / binary payloads must live outside the asar so they are executable and
 # loadable at runtime.

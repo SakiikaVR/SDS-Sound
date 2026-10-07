@@ -10,7 +10,7 @@
 Get-FileHash .\SDS-Sound-Setup-0.1.0.exe -Algorithm SHA256
 ```
 
-起動後、ローカルライブラリはアカウントなしで使えます。Freesoundの検索とダウンロードにはログインが必要です。ログインを押すと既定のブラウザーでFreesoundの認証画面が開きます。SDS-Sound専用のAPI設定が入っていないビルドではログインできません。[SETUP.md](SETUP.md)を参照してください。
+起動後、ローカルライブラリはアカウントなしで使えます。Freesoundの検索とダウンロードにはログインが必要です。ログインを押すと既定のブラウザーでFreesoundの認証画面が開きます。初回起動時に自分のFreesound APIアプリのClient IDとSecretを設定してください。[SETUP.md](SETUP.md)を参照してください。
 
 ## アンインストール
 

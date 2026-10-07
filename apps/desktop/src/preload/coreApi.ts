@@ -45,6 +45,9 @@ export interface RebuildOffer {
  * Electron itself and are documented below.
  */
 export interface CoreApi {
+  getCredentialsStatus(): Promise<{ configured: boolean; clientId: string }>
+  saveCredentials(clientId: string, clientSecret: string): Promise<void>
+  openFreesoundRegistration(): Promise<void>
   importLocalFiles(): Promise<number[]>
   search(query: string, opts?: SearchOptions): Promise<SearchResult>
   searchDebounced(query: string, opts?: SearchOptions): Promise<SearchResult>

@@ -59,6 +59,9 @@ function on<T>(channel: EventChannel) {
 }
 
 const api: CoreApi = {
+  getCredentialsStatus: () => ipcRenderer.invoke('credentials:status'),
+  saveCredentials: (clientId, clientSecret) => ipcRenderer.invoke('credentials:save', clientId, clientSecret),
+  openFreesoundRegistration: () => ipcRenderer.invoke('credentials:openRegistration'),
   importLocalFiles: () => ipcRenderer.invoke('core:importLocalFiles'),
   search: (query, opts) => ipcRenderer.invoke('core:search', query, opts),
   searchDebounced: cmd('searchDebounced'),

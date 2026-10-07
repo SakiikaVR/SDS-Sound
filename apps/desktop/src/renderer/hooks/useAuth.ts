@@ -39,9 +39,14 @@ export function useAuth(): UseAuth {
   const signIn = useCallback(() => {
     setBusy(true)
     setError(null)
-    window.core
-      .signIn()
-      .then((s) => setState(s))
+    window.core.getCredentialsStatus().then((status) => {
+      if (!status.configured) {
+        window.dispatchEvent(new Event('sds-open-credentials'))
+        return null
+      }
+      return window.core.signIn()
+    })
+      .then((s) => { if (s) setState(s) })
       .catch((e: unknown) => {
         setError(e instanceof Error ? e.message : String(e))
       })

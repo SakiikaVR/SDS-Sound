@@ -12,4 +12,4 @@ pnpm --filter @superduper/desktop dev
 pnpm --filter @superduper/desktop pack:win
 ```
 
-The `@superduper/desktop` package name is an internal workspace identifier inherited from Super Duper Core. The installed application is named SDS-Sound. Release installers require SDS-Sound's own `FREESOUND_CLIENT_ID` and `FREESOUND_TOKEN_WORKER_URL` at build time. Never put `FREESOUND_CLIENT_SECRET` in the desktop app.
+The `@superduper/desktop` package name is an internal workspace identifier inherited from Super Duper Core. The installed application is named SDS-Sound. The installer contains no Freesound credentials. Each user registers an API application and enters their Client ID and Secret in the app. The Secret is encrypted with Electron safeStorage on the local machine.

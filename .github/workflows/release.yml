@@ -11,8 +11,6 @@ jobs:
   windows:
     runs-on: windows-latest
     env:
-      FREESOUND_CLIENT_ID: ${{ vars.FREESOUND_CLIENT_ID }}
-      FREESOUND_TOKEN_WORKER_URL: ${{ vars.FREESOUND_TOKEN_WORKER_URL }}
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -21,12 +19,6 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - name: Verify app configuration
-        shell: pwsh
-        run: |
-          if ([string]::IsNullOrWhiteSpace($env:FREESOUND_CLIENT_ID) -or [string]::IsNullOrWhiteSpace($env:FREESOUND_TOKEN_WORKER_URL)) {
-            throw 'Set repository variables FREESOUND_CLIENT_ID and FREESOUND_TOKEN_WORKER_URL for SDS-Sound before releasing.'
-          }
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @superduper/desktop typecheck
       - run: pnpm --filter @superduper/desktop test

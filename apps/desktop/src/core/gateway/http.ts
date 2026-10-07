@@ -32,6 +32,9 @@ function parseRetryAfter(header: string | null): number | undefined {
 }
 
 export interface HttpFreesoundGatewayConfig {
+  /** User-owned Freesound credential. Never bundled in a public build. */
+  clientId?: string
+  clientSecret?: string
   /**
    * Token Worker base URL (`FREESOUND_TOKEN_WORKER_URL`). The Worker holds
    * `client_secret`; this app never does. Required — without it there is no way
@@ -77,12 +80,16 @@ interface WorkerErrorBody {
 export class HttpFreesoundGateway implements FreesoundGateway {
   readonly #baseUrl: string
   readonly #tokenWorkerUrl: string | undefined
+  readonly #clientId: string | undefined
+  readonly #clientSecret: string | undefined
   readonly #installId: string | undefined
   readonly #fetch: typeof fetch
 
   constructor(config: HttpFreesoundGatewayConfig = {}) {
     this.#baseUrl = config.baseUrl ?? DEFAULT_BASE_URL
     this.#tokenWorkerUrl = config.tokenWorkerUrl?.replace(/\/+$/, '')
+    this.#clientId = config.clientId
+    this.#clientSecret = config.clientSecret
     this.#installId = config.installId || undefined
     this.#fetch = config.fetchImpl ?? globalThis.fetch
   }
@@ -199,6 +206,9 @@ export class HttpFreesoundGateway implements FreesoundGateway {
   }
 
   exchangeToken(code: string, redirectUri: string): Promise<TokenSet> {
+    if (this.#clientId && this.#clientSecret) {
+      return this.#directTokenCall({ grant_type: 'authorization_code', code, redirect_uri: redirectUri })
+    }
     return this.#tokenWorkerCall('/exchange', {
       code,
       redirect_uri: redirectUri,
@@ -206,7 +216,44 @@ export class HttpFreesoundGateway implements FreesoundGateway {
   }
 
   refreshToken(refreshToken: string): Promise<TokenSet> {
+    if (this.#clientId && this.#clientSecret) {
+      return this.#directTokenCall({ grant_type: 'refresh_token', refresh_token: refreshToken })
+    }
     return this.#tokenWorkerCall('/refresh', { refresh_token: refreshToken })
+  }
+
+  async #directTokenCall(params: Record<string, string>): Promise<TokenSet> {
+    const form = new URLSearchParams({
+      client_id: this.#clientId!,
+      client_secret: this.#clientSecret!,
+      ...params,
+    })
+    let res: Response
+    try {
+      res = await this.#fetch(new URL('oauth2/access_token/', this.#baseUrl), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: form,
+      })
+    } catch {
+      throw new RetryableTokenError('Freesound token request failed')
+    }
+    if (res.status >= 500 || res.status === 429) throw new RetryableTokenError('Freesound token service is unavailable', res.status)
+    if (!res.ok) throw new ReauthRequiredError('Freesound rejected the API credentials or authorization code', res.status)
+    let body: WorkerTokenBody
+    try {
+      body = await res.json() as WorkerTokenBody
+    } catch {
+      throw new GatewayError('Freesound returned an unreadable token response')
+    }
+    if (!body.access_token || !body.refresh_token) throw new GatewayError('Freesound returned an incomplete token set')
+    return {
+      accessToken: body.access_token,
+      refreshToken: body.refresh_token,
+      expiresIn: typeof body.expires_in === 'number' ? body.expires_in : 86_400,
+      scope: body.scope ?? '',
+      tokenType: body.token_type ?? 'Bearer',
+    }
   }
 
   async getMe(accessToken: string): Promise<FreesoundProfile> {

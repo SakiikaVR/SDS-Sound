@@ -33,7 +33,7 @@ export interface AuthControllerDeps {
   platform: AuthPlatform
   scheduler: Scheduler
   db: DB
-  /** `FREESOUND_CLIENT_ID` (public). `client_secret` lives only in the Worker. */
+  /** Client ID from the current user's locally stored API credential. */
   clientId: string
   onStateChange?: (state: AuthState) => void
 
@@ -140,6 +140,7 @@ export function createAuthController(deps: AuthControllerDeps): AuthController {
   }
 
   async function signIn(): Promise<AuthState> {
+    if (!clientId) throw new Error('Freesound の接続設定を先に登録してください。')
     if (state.status === 'signingIn') {
       throw new Error('A sign-in is already in progress.')
     }
