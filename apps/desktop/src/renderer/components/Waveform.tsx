@@ -18,8 +18,8 @@ import {
 } from '../lib/waveformPeaks'
 import { useTheme } from '../lib/theme'
 
-/** Sound ids whose waveform image has been shown at least once this session. */
-const shown = new Set<number>()
+/** URLs already decoded for rows that have been scrolled out and back into view. */
+const readyUrls = new Set<string>()
 
 const FULL_WINDOW = { start: 0, end: 1 } as const
 
@@ -41,7 +41,7 @@ export const Waveform = memo(function Waveform({
   const ref = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const playheadRef = useRef<HTMLDivElement>(null)
-  const [masked, setMasked] = useState(() => shown.has(soundId))
+  const [imageReady, setImageReady] = useState(() => readyUrls.has(url))
   const theme = useTheme()
 
   const peaks = usePeaks(useShallow(selectPeaks(soundId)))
@@ -58,34 +58,22 @@ export const Waveform = memo(function Waveform({
   }, [soundId, active])
 
   useEffect(() => {
-    if (hasPeaks) return
-    if (shown.has(soundId)) {
-      setMasked(true)
+    if (hasPeaks || !url) return
+    if (readyUrls.has(url)) {
+      setImageReady(true)
       return
     }
-    const el = ref.current
-    if (!el) return
-    if (typeof IntersectionObserver === 'undefined') {
-      shown.add(soundId)
-      setMasked(true)
-      return
+    setImageReady(false)
+    const image = new Image()
+    let alive = true
+    image.onload = () => {
+      readyUrls.add(url)
+      if (readyUrls.size > 256) readyUrls.delete(readyUrls.values().next().value!)
+      if (alive) setImageReady(true)
     }
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            shown.add(soundId)
-            setMasked(true)
-            io.disconnect()
-            return
-          }
-        }
-      },
-      { rootMargin: '250px 0px' },
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [soundId, hasPeaks])
+    image.src = url
+    return () => { alive = false }
+  }, [url, hasPeaks])
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current
@@ -197,7 +185,7 @@ export const Waveform = memo(function Waveform({
 
   const zoomed = zoom.start > 0 || zoom.end < 1
 
-  const maskStyle = masked
+  const maskStyle = imageReady
     ? ({
         WebkitMaskImage: `url("${url}")`,
         maskImage: `url("${url}")`,
@@ -222,12 +210,14 @@ export const Waveform = memo(function Waveform({
           aria-hidden="true"
           className="absolute inset-0 h-full w-full"
         />
-      ) : (
+      ) : imageReady && url ? (
         <div
           aria-hidden="true"
           className="waveform-mask absolute inset-0 bg-[var(--sd-wave-played)]"
           style={maskStyle}
         />
+      ) : (
+        <div aria-hidden="true" className="absolute inset-x-0 top-1/2 h-px bg-[var(--sd-wave-mid)]" />
       )}
 
       {active && (

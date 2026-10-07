@@ -1,8 +1,62 @@
+import { useEffect, useState } from 'react'
+import type { Sound } from '../../core/types'
+import { formatDuration } from '../lib/format'
 import { useViewport } from '../lib/viewport'
+import { getPlaybackPosition } from '../store/audioController'
 import { useTransport } from '../store/useTransport'
 import { RailTransportMenu } from './RailTransportMenu'
-import { Waveform } from './Waveform'
 import { t } from '../lib/locale'
+
+function TransportSeekBar({ sound }: { sound: Sound }) {
+  const [position, setPosition] = useState({ currentTime: 0, duration: sound.duration, ready: false })
+
+  useEffect(() => {
+    const sync = () => {
+      const playback = getPlaybackPosition(sound.id)
+      const next = playback
+        ? { ...playback, ready: true }
+        : { currentTime: 0, duration: sound.duration, ready: false }
+      setPosition((previous) =>
+        previous.ready === next.ready &&
+        Math.abs(previous.currentTime - next.currentTime) < 0.02 &&
+        previous.duration === next.duration
+          ? previous
+          : next,
+      )
+    }
+    sync()
+    const timer = window.setInterval(sync, 100)
+    return () => window.clearInterval(timer)
+  }, [sound.id, sound.duration])
+
+  const duration = Math.max(0, position.duration)
+  const fraction = duration > 0 ? position.currentTime / duration : 0
+  const timeLabel = `${formatDuration(Math.floor(position.currentTime))} / ${formatDuration(duration)}`
+  const seek = (value: number) => {
+    useTransport.getState().seekFraction(value)
+    setPosition((previous) => ({ ...previous, currentTime: value * previous.duration }))
+  }
+
+  return (
+    <div className="flex items-center gap-3 border-b border-line px-4 py-3 text-xs text-ink-muted">
+      <span className="w-24 shrink-0 tabular-nums" aria-live="off">
+        {timeLabel}
+      </span>
+      <input
+        type="range"
+        min={0}
+        max={1000}
+        step={1}
+        value={Math.round(fraction * 1000)}
+        onChange={(event) => seek(Number(event.target.value) / 1000)}
+        disabled={!position.ready}
+        className="h-1 min-w-0 flex-1 accent-[var(--sd-accent-2)] disabled:opacity-40"
+        aria-label={t('Playback position', '再生位置')}
+        aria-valuetext={timeLabel}
+      />
+    </div>
+  )
+}
 
 function statusLabel(status: string, hasSound: boolean): string {
   if (!hasSound) return t('Nothing playing', '再生中の音なし')
@@ -37,15 +91,7 @@ export function TransportBar() {
   return (
     <div className="shrink-0 border-t border-line bg-bg">
       {currentSound && (
-        <div className="border-b border-line px-4 pt-2">
-          <Waveform
-            key={currentSound.id}
-            soundId={currentSound.id}
-            url={currentSound.waveformUrls.l || currentSound.waveformUrls.m}
-            active
-            className={`${isRail ? 'h-12' : 'h-16'} w-full rounded bg-bg-inset`}
-          />
-        </div>
+        <TransportSeekBar key={currentSound.id} sound={currentSound} />
       )}
 
       {isRail ? (

@@ -8,7 +8,8 @@ import { useLibrary } from '../store/useLibrary'
 import { ResultRow } from './ResultRow'
 
 const ROW_HEIGHT = 64
-const OVERSCAN = 8
+/** Mount rows ahead of the viewport so their waveform images load before scrolling into view. */
+const OVERSCAN = 14
 /** Trigger the next page once the last rendered row is this close to the end. */
 const LOAD_MORE_THRESHOLD = 5
 

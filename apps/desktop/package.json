@@ -1,7 +1,7 @@
 {
 	"name": "@superduper/desktop",
 	"productName": "SDS-Sound",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"private": true,
 	"description": "SDS-Sound desktop client for Freesound",
 	"author": "SDS-Sound contributors; based on Super Duper Software",

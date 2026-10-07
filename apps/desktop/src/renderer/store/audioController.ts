@@ -94,9 +94,8 @@ let switching = false
 
 /**
  * Every registered playhead DOM node, mapped to the sound id it belongs to.
- * There can be more than one for the current sound at once — e.g. the result
- * row's inline waveform and the transport bar's larger zoomable waveform
- *. The rAF loop writes `--playhead` to every node whose id matches
+ * There can be more than one for the current sound at once, such as two visible
+ * result rows. The rAF loop writes `--playhead` to every node whose id matches
  * the sound currently loaded.
  */
 const playheadNodes = new Map<HTMLElement, number>()
@@ -254,6 +253,16 @@ export function seekFraction(fraction: number): void {
   a.currentTime = f * a.duration
   for (const [node, id] of playheadNodes) {
     if (id === currentId) node.style.setProperty('--playhead', String(f))
+  }
+}
+
+/** Current position of the loaded sound for the transport's time readout. */
+export function getPlaybackPosition(soundId: number): { currentTime: number; duration: number } | null {
+  const a = el
+  if (!a || currentId !== soundId || !Number.isFinite(a.duration) || a.duration <= 0) return null
+  return {
+    currentTime: Number.isFinite(a.currentTime) ? Math.min(a.duration, Math.max(0, a.currentTime)) : 0,
+    duration: a.duration,
   }
 }
 
